@@ -1,0 +1,184 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import Sidebar from "@/components/Sidebar";
+import Topbar from "@/components/Topbar";
+import StatCard from "@/components/StatCard";
+import Donut from "@/components/Donut";
+import { useStore } from "@/store/useStore";
+import { cn, formatDate } from "@/lib/utils";
+import { FileText, CheckCircle2, Clock, FileEdit, Plus } from "lucide-react";
+
+export default function Dashboard() {
+  const router = useRouter();
+  const assessments = useStore((s) => s.assessments);
+
+  const total = assessments.length;
+  const completed = assessments.filter((a) => a.status === "completed").length;
+  const inReview = assessments.filter((a) => a.status === "in-review").length;
+  const drafts = assessments.filter((a) => a.status === "draft").length;
+
+  const avgCompleteness =
+    total === 0
+      ? 0
+      : Math.round(
+          assessments.reduce((sum, a) => sum + a.completeness, 0) / total
+        );
+
+  const supported = assessments.reduce(
+    (n, a) => n + a.mappings.filter((m) => m.status === "accepted").length, 0
+  );
+  const needsReview = assessments.reduce(
+    (n, a) => n + a.mappings.filter((m) => ["pending", "weak", "ambiguous"].includes(m.status)).length, 0
+  );
+  const missing = assessments.reduce(
+    (n, a) => n + a.mappings.filter((m) => m.status === "missing").length, 0
+  );
+
+  return (
+    <div className="flex min-h-screen bg-canvas">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Topbar breadcrumb={["Dashboard"]} />
+
+        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-ink">Welcome back, Rahul</h1>
+              <p className="text-sm text-ink-mute mt-1">
+                Review and analyze grant applications with AI-powered evidence checking.
+              </p>
+            </div>
+            <button onClick={() => router.push("/new")} className="btn-primary shadow-pop">
+              <Plus size={16} />
+              New Assessment
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatCard label="Total Assessments" value={total} icon={FileText} color="blue" />
+            <StatCard label="Completed" value={completed} icon={CheckCircle2} color="green" />
+            <StatCard label="In Review" value={inReview} icon={Clock} color="amber" />
+            <StatCard label="Drafts" value={drafts} icon={FileEdit} color="violet" />
+          </div>
+
+          <div className="card mb-8 overflow-hidden">
+            <div className="px-6 py-4 border-b border-line">
+              <h2 className="text-base font-semibold text-ink">Recent Assessments</h2>
+            </div>
+            {assessments.length === 0 ? (
+              <div className="text-center py-16">
+                <FileText size={40} className="text-slate-300 mx-auto mb-3" />
+                <p className="text-ink font-medium">No assessments yet</p>
+                <p className="text-sm text-ink-mute mb-4">
+                  Create your first one to see it here.
+                </p>
+                <button onClick={() => router.push("/new")} className="btn-primary">
+                  <Plus size={16} /> New Assessment
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr>
+                      <th className="table-head">Title</th>
+                      <th className="table-head">Status</th>
+                      <th className="table-head">Completeness</th>
+                      <th className="table-head">Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assessments.slice(0, 10).map((a) => (
+                      <tr
+                        key={a.id}
+                        onClick={() => {
+                          useStore.getState().setCurrent(a.id);
+                          router.push("/results");
+                        }}
+                        className="hover:bg-slate-50 cursor-pointer transition-colors"
+                      >
+                        <td className="table-cell font-medium">{a.title}</td>
+                        <td className="table-cell"><StatusChip status={a.status} /></td>
+                        <td className="table-cell">
+                          <div className="flex items-center gap-3">
+                            <div className="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full",
+                                  a.completeness >= 80 ? "bg-emerald-500"
+                                  : a.completeness >= 50 ? "bg-amber-500"
+                                  : a.completeness > 0 ? "bg-blue-500"
+                                  : "bg-slate-300"
+                                )}
+                                style={{ width: `${a.completeness}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-ink-mute font-medium">{a.completeness}%</span>
+                          </div>
+                        </td>
+                        <td className="table-cell text-ink-mute">{formatDate(a.updatedAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="card p-6">
+              <h2 className="text-base font-semibold text-ink mb-4">Completion Overview</h2>
+              <div className="flex items-center gap-8 flex-wrap">
+                <Donut percent={avgCompleteness} />
+                <ul className="space-y-3 text-sm flex-1 min-w-[180px]">
+                  <Legend color="bg-emerald-500" label="Supported" value={supported} />
+                  <Legend color="bg-amber-500" label="Needs review" value={needsReview} />
+                  <Legend color="bg-red-500" label="Missing" value={missing} />
+                </ul>
+              </div>
+            </div>
+
+            <div className="card p-6">
+              <h2 className="text-base font-semibold text-ink mb-4">Recent Activity</h2>
+              {assessments.length === 0 ? (
+                <p className="text-sm text-ink-mute">No activity yet.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {assessments.slice(0, 4).map((a) => (
+                    <li key={a.id} className="flex items-center gap-3 text-sm pb-3 border-b border-line last:border-0 last:pb-0">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-ink-mute">
+                        <Clock size={14} />
+                      </div>
+                      <span className="text-ink-soft truncate">{a.title}</span>
+                      <span className="ml-auto text-xs text-ink-mute shrink-0">
+                        {formatDate(a.updatedAt)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function StatusChip({ status }: { status: string }) {
+  if (status === "completed") return <span className="chip-success">Completed</span>;
+  if (status === "in-review") return <span className="chip-warning">In review</span>;
+  if (status === "draft") return <span className="chip-neutral">Draft</span>;
+  return <span className="chip-neutral">{status}</span>;
+}
+
+function Legend({ color, label, value }: { color: string; label: string; value: number }) {
+  return (
+    <li className="flex items-center gap-3">
+      <span className={cn("w-2.5 h-2.5 rounded-full", color)} />
+      <span className="text-ink-soft">{label}</span>
+      <span className="ml-auto font-semibold text-ink">{value}</span>
+    </li>
+  );
+}

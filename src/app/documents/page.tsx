@@ -1,32 +1,69 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { useStore } from "@/store/useStore";
 import { cn, formatDate, uid } from "@/lib/utils";
 import {
-  FileText, Plus, Search, X, Trash2, Download, Eye,
-  Filter, ChevronDown, FileCheck2,
+  FileText,
+  Plus,
+  Search,
+  X,
+  Trash2,
+  Download,
+  Eye,
+  Filter,
+  ChevronDown,
+  FileCheck2,
+  Pencil,
 } from "lucide-react";
 import type { StoredDocument } from "@/types";
 
-const TYPE_LABELS: Record<StoredDocument["type"], string> = {
-  guideline: "Guideline",
-  application: "Application",
-  supporting: "Supporting",
+const primaryButtonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.5rem",
+  padding: "0.625rem 1.125rem",
+  background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+  color: "#ffffff",
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  lineHeight: "1.25rem",
+  borderRadius: "10px",
+  border: "1px solid #2563eb",
+  boxShadow:
+    "0 4px 14px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)",
+  cursor: "pointer",
+  textDecoration: "none",
+  whiteSpace: "nowrap",
+  transition: "transform 150ms ease, box-shadow 150ms ease",
+};
+
+const hoverOn = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.currentTarget.style.transform = "translateY(-1px)";
+  e.currentTarget.style.boxShadow =
+    "0 8px 20px -3px rgba(37, 99, 235, 0.55), inset 0 1px 0 rgba(255,255,255,0.2)";
+};
+
+const hoverOff = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.currentTarget.style.transform = "translateY(0)";
+  e.currentTarget.style.boxShadow =
+    "0 4px 14px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)";
 };
 
 export default function DocumentsPage() {
-  const router = useRouter();
-  const { documents, addDocument, deleteDocument, updateDocument } = useStore();
+  const documents = useStore((s) => s.documents);
+  const addDocument = useStore((s) => s.addDocument);
+  const deleteDocument = useStore((s) => s.deleteDocument);
+  const updateDocument = useStore((s) => s.updateDocument);
 
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<StoredDocument["type"] | "all">("all");
   const [sortBy, setSortBy] = useState<"recent" | "name" | "size">("recent");
   const [preview, setPreview] = useState<StoredDocument | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [editing, setEditing] = useState<StoredDocument | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -50,7 +87,6 @@ export default function DocumentsPage() {
 
   const handleUpload = (files: FileList | null) => {
     if (!files) return;
-    setUploading(true);
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -66,7 +102,6 @@ export default function DocumentsPage() {
       };
       reader.readAsText(file);
     });
-    setTimeout(() => setUploading(false), 400);
   };
 
   const download = (doc: StoredDocument) => {
@@ -82,7 +117,7 @@ export default function DocumentsPage() {
   const totalSize = documents.reduce((n, d) => n + d.size, 0);
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex min-h-screen app-shell">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Documents"]} />
@@ -96,7 +131,12 @@ export default function DocumentsPage() {
                 {(totalSize / 1024).toFixed(1)} KB stored
               </p>
             </div>
-            <button onClick={() => inputRef.current?.click()} className="btn-primary">
+            <button
+              onClick={() => inputRef.current?.click()}
+              style={primaryButtonStyle}
+              onMouseEnter={hoverOn}
+              onMouseLeave={hoverOff}
+            >
               <Plus size={16} /> Upload Document
             </button>
             <input
@@ -109,12 +149,12 @@ export default function DocumentsPage() {
             />
           </div>
 
-          {/* Toolbar */}
-          <div className="card mb-4 p-3 flex items-center gap-3 flex-wrap">
+          <div className="card mb-4 !p-3 flex items-center gap-3 flex-wrap">
             <div className="relative flex-1 min-w-[200px]">
               <Search
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute"
+                className="absolute left-3 top-1/2 -translate-y-1/2"
+                style={{ color: "var(--text-muted)" }}
               />
               <input
                 value={search}
@@ -127,7 +167,8 @@ export default function DocumentsPage() {
             <div className="relative">
               <Filter
                 size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: "var(--text-muted)" }}
               />
               <select
                 value={typeFilter}
@@ -153,26 +194,48 @@ export default function DocumentsPage() {
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: "var(--text-muted)" }}
               />
             </div>
           </div>
 
-          {/* List */}
           {documents.length === 0 ? (
             <div
               onClick={() => inputRef.current?.click()}
-              className="card p-12 text-center border-dashed border-2 cursor-pointer hover:border-brand-500 hover:bg-brand-50/30 transition-colors"
+              className="card !p-12 text-center border-dashed border-2 cursor-pointer"
+              style={{ borderColor: "var(--border)" }}
             >
-              <FileCheck2 size={40} className="text-slate-300 mx-auto mb-3" />
+              <FileCheck2
+                size={40}
+                className="mx-auto mb-3"
+                style={{ color: "var(--text-muted)" }}
+              />
               <p className="text-ink font-medium mb-1">No documents yet</p>
-              <p className="text-sm text-ink-mute">
+              <p className="text-sm text-ink-mute mb-6">
                 Click to upload your first document (TXT or MD)
               </p>
+              <div className="flex justify-center">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.click();
+                  }}
+                  style={primaryButtonStyle}
+                  onMouseEnter={hoverOn}
+                  onMouseLeave={hoverOff}
+                >
+                  <Plus size={16} /> Upload Document
+                </button>
+              </div>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="card p-12 text-center">
-              <Search size={40} className="text-slate-300 mx-auto mb-3" />
+            <div className="card !p-12 text-center">
+              <Search
+                size={40}
+                className="mx-auto mb-3"
+                style={{ color: "var(--text-muted)" }}
+              />
               <p className="text-ink font-medium">No matching documents</p>
               <button
                 onClick={() => {
@@ -185,7 +248,7 @@ export default function DocumentsPage() {
               </button>
             </div>
           ) : (
-            <div className="card overflow-hidden">
+            <div className="card !p-0 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -194,15 +257,29 @@ export default function DocumentsPage() {
                       <th className="table-head w-32">Type</th>
                       <th className="table-head w-24">Size</th>
                       <th className="table-head w-40">Uploaded</th>
-                      <th className="table-head w-32 text-right">Actions</th>
+                      <th className="table-head w-40 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                      <tr
+                        key={doc.id}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "var(--bg-hover)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "transparent")
+                        }
+                      >
                         <td className="table-cell">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <div
+                              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                              style={{
+                                background: "var(--info-soft)",
+                                color: "var(--info)",
+                              }}
+                            >
                               <FileText size={16} />
                             </div>
                             <div className="min-w-0">
@@ -216,38 +293,56 @@ export default function DocumentsPage() {
                           </div>
                         </td>
                         <td className="table-cell">
-                          <select
-                            value={doc.type}
-                            onChange={(e) =>
-                              updateDocument(doc.id, {
-                                type: e.target.value as any,
-                              })
-                            }
-                            className="chip-info cursor-pointer border-0 outline-none"
-                          >
-                            <option value="guideline">Guideline</option>
-                            <option value="application">Application</option>
-                            <option value="supporting">Supporting</option>
-                          </select>
+                          <span className="chip chip-info capitalize">
+                            {doc.type}
+                          </span>
                         </td>
-                        <td className="table-cell text-ink-mute text-xs">
+                        <td className="table-cell text-xs text-ink-mute">
                           {(doc.size / 1024).toFixed(1)} KB
                         </td>
-                        <td className="table-cell text-ink-mute text-xs">
+                        <td className="table-cell text-xs text-ink-mute">
                           {formatDate(doc.uploadedAt)}
                         </td>
                         <td className="table-cell text-right">
                           <div className="flex justify-end gap-1">
                             <button
                               onClick={() => setPreview(doc)}
-                              className="w-8 h-8 rounded-lg hover:bg-slate-200 flex items-center justify-center text-ink-mute"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center"
+                              style={{ color: "var(--text-muted)" }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.background = "var(--bg-hover)")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.background = "transparent")
+                              }
                               title="Preview"
                             >
                               <Eye size={14} />
                             </button>
                             <button
+                              onClick={() => setEditing(doc)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center"
+                              style={{ color: "var(--text-muted)" }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.background = "var(--bg-hover)")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.background = "transparent")
+                              }
+                              title="Edit"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
                               onClick={() => download(doc)}
-                              className="w-8 h-8 rounded-lg hover:bg-slate-200 flex items-center justify-center text-ink-mute"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center"
+                              style={{ color: "var(--text-muted)" }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.background = "var(--bg-hover)")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.background = "transparent")
+                              }
                               title="Download"
                             >
                               <Download size={14} />
@@ -257,7 +352,16 @@ export default function DocumentsPage() {
                                 if (confirm(`Delete "${doc.name}"?`))
                                   deleteDocument(doc.id);
                               }}
-                              className="w-8 h-8 rounded-lg hover:bg-red-100 flex items-center justify-center text-ink-mute hover:text-red-600"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center"
+                              style={{ color: "var(--text-muted)" }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "var(--danger-soft)";
+                                e.currentTarget.style.color = "var(--danger)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "transparent";
+                                e.currentTarget.style.color = "var(--text-muted)";
+                              }}
                               title="Delete"
                             >
                               <Trash2 size={14} />
@@ -274,31 +378,151 @@ export default function DocumentsPage() {
         </main>
       </div>
 
-      {/* Preview modal */}
       {preview && (
         <>
           <div
             onClick={() => setPreview(null)}
-            className="fixed inset-0 bg-ink/30 z-40"
+            className="fixed inset-0 z-40"
+            style={{ background: "rgba(0,0,0,0.4)" }}
           />
-          <div className="fixed inset-x-4 top-20 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[700px] bg-white rounded-xl shadow-pop z-50 flex flex-col overflow-hidden">
-            <div className="border-b border-line px-6 py-4 flex items-center justify-between">
+          <div
+            className="fixed inset-x-4 top-20 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[700px] rounded-xl z-50 flex flex-col overflow-hidden"
+            style={{
+              background: "var(--bg-surface)",
+              boxShadow: "var(--shadow-pop)",
+            }}
+          >
+            <div
+              className="px-6 py-4 flex items-center justify-between border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
               <div>
                 <h3 className="font-semibold text-ink">{preview.name}</h3>
                 <p className="text-xs text-ink-mute">
-                  {(preview.size / 1024).toFixed(1)} KB · {formatDate(preview.uploadedAt)}
+                  {(preview.size / 1024).toFixed(1)} KB ·{" "}
+                  {formatDate(preview.uploadedAt)}
                 </p>
               </div>
               <button
                 onClick={() => setPreview(null)}
-                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center"
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ color: "var(--text-muted)" }}
               >
                 <X size={18} />
               </button>
             </div>
-            <pre className="flex-1 overflow-auto p-6 text-sm whitespace-pre-wrap font-mono text-ink-soft">
+            <pre
+              className="flex-1 overflow-auto p-6 text-sm whitespace-pre-wrap font-mono"
+              style={{ color: "var(--text-soft)" }}
+            >
               {preview.content}
             </pre>
+          </div>
+        </>
+      )}
+
+      {editing && (
+        <>
+          <div
+            onClick={() => setEditing(null)}
+            className="fixed inset-0 z-40"
+            style={{ background: "rgba(0,0,0,0.4)" }}
+          />
+          <div
+            className="fixed inset-x-4 top-24 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[500px] rounded-xl z-50 overflow-hidden"
+            style={{
+              background: "var(--bg-surface)",
+              boxShadow: "var(--shadow-pop)",
+            }}
+          >
+            <div
+              className="px-6 py-4 flex items-center justify-between border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <h3 className="font-semibold text-ink">Edit Document</h3>
+              <button
+                onClick={() => setEditing(null)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ color: "var(--text-muted)" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-ink mb-1.5">
+                  Name
+                </label>
+                <input
+                  value={editing.name}
+                  onChange={(e) =>
+                    setEditing({ ...editing, name: e.target.value })
+                  }
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink mb-1.5">
+                  Type
+                </label>
+                <select
+                  value={editing.type}
+                  onChange={(e) =>
+                    setEditing({
+                      ...editing,
+                      type: e.target.value as StoredDocument["type"],
+                    })
+                  }
+                  className="input cursor-pointer"
+                >
+                  <option value="guideline">Guideline</option>
+                  <option value="application">Application</option>
+                  <option value="supporting">Supporting</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink mb-1.5">
+                  Tags (comma-separated)
+                </label>
+                <input
+                  value={editing.tags.join(", ")}
+                  onChange={(e) =>
+                    setEditing({
+                      ...editing,
+                      tags: e.target.value
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean),
+                    })
+                  }
+                  placeholder="e.g. 2026, federal, stem"
+                  className="input"
+                />
+              </div>
+            </div>
+            <div
+              className="px-6 py-4 flex justify-end gap-2 border-t"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <button onClick={() => setEditing(null)} className="btn-secondary">
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  updateDocument(editing.id, {
+                    name: editing.name,
+                    type: editing.type,
+                    tags: editing.tags,
+                  });
+                  setEditing(null);
+                }}
+                style={primaryButtonStyle}
+                onMouseEnter={hoverOn}
+                onMouseLeave={hoverOff}
+              >
+                Save
+              </button>
+            </div>
           </div>
         </>
       )}

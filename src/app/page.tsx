@@ -9,9 +9,45 @@ import { useStore } from "@/store/useStore";
 import { cn, formatDate } from "@/lib/utils";
 import { FileText, CheckCircle2, Clock, FileEdit, Plus } from "lucide-react";
 
+const primaryButtonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.5rem",
+  padding: "0.625rem 1.125rem",
+  background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+  color: "#ffffff",
+  fontSize: "0.875rem",
+  fontWeight: 600,
+  lineHeight: "1.25rem",
+  borderRadius: "10px",
+  border: "1px solid #2563eb",
+  boxShadow:
+    "0 4px 14px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)",
+  cursor: "pointer",
+  textDecoration: "none",
+  whiteSpace: "nowrap",
+  transition: "transform 150ms ease, box-shadow 150ms ease",
+};
+
+const hoverOn = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.currentTarget.style.transform = "translateY(-1px)";
+  e.currentTarget.style.boxShadow =
+    "0 8px 20px -3px rgba(37, 99, 235, 0.55), inset 0 1px 0 rgba(255,255,255,0.2)";
+};
+
+const hoverOff = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.currentTarget.style.transform = "translateY(0)";
+  e.currentTarget.style.boxShadow =
+    "0 4px 14px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)";
+};
+
 export default function Dashboard() {
   const router = useRouter();
+
   const assessments = useStore((s) => s.assessments);
+  const setCurrent = useStore((s) => s.setCurrent);
+  const userName = useStore((s) => s.preferences.name);
 
   const total = assessments.length;
   const completed = assessments.filter((a) => a.status === "completed").length;
@@ -26,17 +62,26 @@ export default function Dashboard() {
         );
 
   const supported = assessments.reduce(
-    (n, a) => n + a.mappings.filter((m) => m.status === "accepted").length, 0
+    (n, a) => n + a.mappings.filter((m) => m.status === "accepted").length,
+    0
   );
   const needsReview = assessments.reduce(
-    (n, a) => n + a.mappings.filter((m) => ["pending", "weak", "ambiguous"].includes(m.status)).length, 0
+    (n, a) =>
+      n +
+      a.mappings.filter((m) =>
+        ["pending", "weak", "ambiguous"].includes(m.status)
+      ).length,
+    0
   );
   const missing = assessments.reduce(
-    (n, a) => n + a.mappings.filter((m) => m.status === "missing").length, 0
+    (n, a) => n + a.mappings.filter((m) => m.status === "missing").length,
+    0
   );
 
+  const firstName = userName.split(" ")[0] || "there";
+
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex min-h-screen app-shell">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Dashboard"]} />
@@ -44,12 +89,20 @@ export default function Dashboard() {
         <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
           <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-ink">Welcome back, Rahul</h1>
+              <h1 className="text-2xl font-bold text-ink">
+                Welcome back, {firstName}
+              </h1>
               <p className="text-sm text-ink-mute mt-1">
-                Review and analyze grant applications with AI-powered evidence checking.
+                Review and analyze grant applications with AI-powered evidence
+                checking.
               </p>
             </div>
-            <button onClick={() => router.push("/new")} className="btn-primary shadow-pop">
+            <button
+              onClick={() => router.push("/new")}
+              style={primaryButtonStyle}
+              onMouseEnter={hoverOn}
+              onMouseLeave={hoverOff}
+            >
               <Plus size={16} />
               New Assessment
             </button>
@@ -62,18 +115,32 @@ export default function Dashboard() {
             <StatCard label="Drafts" value={drafts} icon={FileEdit} color="violet" />
           </div>
 
-          <div className="card mb-8 overflow-hidden">
-            <div className="px-6 py-4 border-b border-line">
-              <h2 className="text-base font-semibold text-ink">Recent Assessments</h2>
+          <div className="card mb-8 !p-0 overflow-hidden">
+            <div
+              className="px-6 py-4 border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <h2 className="text-base font-semibold text-ink">
+                Recent Assessments
+              </h2>
             </div>
             {assessments.length === 0 ? (
               <div className="text-center py-16">
-                <FileText size={40} className="text-slate-300 mx-auto mb-3" />
+                <FileText
+                  size={40}
+                  className="mx-auto mb-3"
+                  style={{ color: "var(--text-muted)" }}
+                />
                 <p className="text-ink font-medium">No assessments yet</p>
                 <p className="text-sm text-ink-mute mb-4">
                   Create your first one to see it here.
                 </p>
-                <button onClick={() => router.push("/new")} className="btn-primary">
+                <button
+                  onClick={() => router.push("/new")}
+                  style={{ ...primaryButtonStyle, marginTop: "0.5rem" }}
+                  onMouseEnter={hoverOn}
+                  onMouseLeave={hoverOff}
+                >
                   <Plus size={16} /> New Assessment
                 </button>
               </div>
@@ -93,31 +160,49 @@ export default function Dashboard() {
                       <tr
                         key={a.id}
                         onClick={() => {
-                          useStore.getState().setCurrent(a.id);
+                          setCurrent(a.id);
                           router.push("/results");
                         }}
-                        className="hover:bg-slate-50 cursor-pointer transition-colors"
+                        className="cursor-pointer"
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "var(--bg-hover)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "transparent")
+                        }
                       >
                         <td className="table-cell font-medium">{a.title}</td>
-                        <td className="table-cell"><StatusChip status={a.status} /></td>
+                        <td className="table-cell">
+                          <StatusChip status={a.status} />
+                        </td>
                         <td className="table-cell">
                           <div className="flex items-center gap-3">
-                            <div className="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className="w-24 h-1.5 rounded-full overflow-hidden"
+                              style={{ background: "var(--border)" }}
+                            >
                               <div
                                 className={cn(
                                   "h-full rounded-full",
-                                  a.completeness >= 80 ? "bg-emerald-500"
-                                  : a.completeness >= 50 ? "bg-amber-500"
-                                  : a.completeness > 0 ? "bg-blue-500"
-                                  : "bg-slate-300"
+                                  a.completeness >= 80
+                                    ? "bg-emerald-500"
+                                    : a.completeness >= 50
+                                    ? "bg-amber-500"
+                                    : a.completeness > 0
+                                    ? "bg-blue-500"
+                                    : "bg-slate-500"
                                 )}
                                 style={{ width: `${a.completeness}%` }}
                               />
                             </div>
-                            <span className="text-xs text-ink-mute font-medium">{a.completeness}%</span>
+                            <span className="text-xs text-ink-mute font-medium">
+                              {a.completeness}%
+                            </span>
                           </div>
                         </td>
-                        <td className="table-cell text-ink-mute">{formatDate(a.updatedAt)}</td>
+                        <td className="table-cell text-ink-mute">
+                          {formatDate(a.updatedAt)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -127,27 +212,41 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="card p-6">
-              <h2 className="text-base font-semibold text-ink mb-4">Completion Overview</h2>
+            <div className="card">
+              <h2 className="text-base font-semibold text-ink mb-4">
+                Completion Overview
+              </h2>
               <div className="flex items-center gap-8 flex-wrap">
                 <Donut percent={avgCompleteness} />
                 <ul className="space-y-3 text-sm flex-1 min-w-[180px]">
-                  <Legend color="bg-emerald-500" label="Supported" value={supported} />
-                  <Legend color="bg-amber-500" label="Needs review" value={needsReview} />
-                  <Legend color="bg-red-500" label="Missing" value={missing} />
+                  <Legend color="#10b981" label="Supported" value={supported} />
+                  <Legend color="#f59e0b" label="Needs review" value={needsReview} />
+                  <Legend color="#ef4444" label="Missing" value={missing} />
                 </ul>
               </div>
             </div>
 
-            <div className="card p-6">
-              <h2 className="text-base font-semibold text-ink mb-4">Recent Activity</h2>
+            <div className="card">
+              <h2 className="text-base font-semibold text-ink mb-4">
+                Recent Activity
+              </h2>
               {assessments.length === 0 ? (
                 <p className="text-sm text-ink-mute">No activity yet.</p>
               ) : (
                 <ul className="space-y-3">
                   {assessments.slice(0, 4).map((a) => (
-                    <li key={a.id} className="flex items-center gap-3 text-sm pb-3 border-b border-line last:border-0 last:pb-0">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-ink-mute">
+                    <li
+                      key={a.id}
+                      className="flex items-center gap-3 text-sm pb-3 last:border-0 last:pb-0 border-b"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center"
+                        style={{
+                          background: "var(--bg-hover)",
+                          color: "var(--text-muted)",
+                        }}
+                      >
                         <Clock size={14} />
                       </div>
                       <span className="text-ink-soft truncate">{a.title}</span>
@@ -167,16 +266,29 @@ export default function Dashboard() {
 }
 
 function StatusChip({ status }: { status: string }) {
-  if (status === "completed") return <span className="chip-success">Completed</span>;
-  if (status === "in-review") return <span className="chip-warning">In review</span>;
-  if (status === "draft") return <span className="chip-neutral">Draft</span>;
-  return <span className="chip-neutral">{status}</span>;
+  if (status === "completed")
+    return <span className="chip chip-success">Completed</span>;
+  if (status === "in-review")
+    return <span className="chip chip-warning">In review</span>;
+  if (status === "draft") return <span className="chip chip-neutral">Draft</span>;
+  return <span className="chip chip-neutral">{status}</span>;
 }
 
-function Legend({ color, label, value }: { color: string; label: string; value: number }) {
+function Legend({
+  color,
+  label,
+  value,
+}: {
+  color: string;
+  label: string;
+  value: number;
+}) {
   return (
     <li className="flex items-center gap-3">
-      <span className={cn("w-2.5 h-2.5 rounded-full", color)} />
+      <span
+        className="w-2.5 h-2.5 rounded-full"
+        style={{ background: color }}
+      />
       <span className="text-ink-soft">{label}</span>
       <span className="ml-auto font-semibold text-ink">{value}</span>
     </li>

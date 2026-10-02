@@ -1,17 +1,31 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, ClipboardList, FileText, LayoutTemplate,
-  BarChart3, Settings, HelpCircle,
+  LayoutDashboard,
+  ClipboardList,
+  FileText,
+  LayoutTemplate,
+  BarChart3,
+  Settings,
+  HelpCircle,
 } from "lucide-react";
 
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/" },
-  { id: "assessments", label: "Assessments", icon: ClipboardList, href: "/assessments" },
+  {
+    id: "assessments",
+    label: "Assessments",
+    icon: ClipboardList,
+    href: "/assessments",
+  },
   { id: "documents", label: "Documents", icon: FileText, href: "/documents" },
-  { id: "templates", label: "Templates", icon: LayoutTemplate, href: "/templates" },
+  {
+    id: "templates",
+    label: "Templates",
+    icon: LayoutTemplate,
+    href: "/templates",
+  },
   { id: "reports", label: "Reports", icon: BarChart3, href: "/reports" },
 ];
 
@@ -23,16 +37,20 @@ export default function Sidebar() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <aside className="w-64 shrink-0 bg-white border-r border-line flex flex-col h-screen sticky top-0">
-      <div className="px-6 py-5 border-b border-line">
+    <aside
+      className="app-sidebar w-64 shrink-0 flex flex-col h-screen sticky top-0 border-r"
+    >
+      <div className="px-6 py-5 border-b divider">
         <button
           onClick={() => router.push("/")}
           className="flex items-center gap-2"
         >
-          <div className="w-8 h-8 rounded-lg bg-ink flex items-center justify-center">
-            <span className="text-white text-xs font-bold">A</span>
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+            style={{ background: "var(--brand)" }}
+          >
+            A
           </div>
-          <span className="font-bold tracking-widest text-sm text-ink">AGGROSO</span>
         </button>
       </div>
 
@@ -53,12 +71,18 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-line space-y-1">
-        <button onClick={() => router.push("/settings")} className="nav-item">
+      <div className="px-3 py-4 border-t divider space-y-1">
+        <button
+          onClick={() => router.push("/settings")}
+          className={isActive("/settings") ? "nav-item-active" : "nav-item"}
+        >
           <Settings size={18} />
           <span>Settings</span>
         </button>
-        <button onClick={() => router.push("/help")} className="nav-item">
+        <button
+          onClick={() => router.push("/help")}
+          className={isActive("/help") ? "nav-item-active" : "nav-item"}
+        >
           <HelpCircle size={18} />
           <span>Help</span>
         </button>

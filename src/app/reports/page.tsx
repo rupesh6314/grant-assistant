@@ -6,10 +6,25 @@ import Topbar from "@/components/Topbar";
 import { useStore } from "@/store/useStore";
 import { cn } from "@/lib/utils";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
 } from "recharts";
-import { TrendingUp, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
+import {
+  TrendingUp,
+  FileText,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 
 const COLORS = {
   emerald: "#10b981",
@@ -21,10 +36,12 @@ const COLORS = {
 };
 
 export default function ReportsPage() {
-  const { assessments, templates, documents } = useStore();
+  const assessments = useStore((s) => s.assessments);
+  const templates = useStore((s) => s.templates);
+  const documents = useStore((s) => s.documents);
+
   const [range, setRange] = useState<"7d" | "30d" | "all">("30d");
 
-  /* ── Status breakdown ───────────────── */
   const statusData = useMemo(() => {
     const counts = { draft: 0, "in-review": 0, completed: 0 };
     assessments.forEach((a) => {
@@ -37,7 +54,6 @@ export default function ReportsPage() {
     ].filter((d) => d.value > 0);
   }, [assessments]);
 
-  /* ── Requirements breakdown across all assessments ── */
   const reqData = useMemo(() => {
     const counts = { accepted: 0, pending: 0, weak: 0, missing: 0, rejected: 0 };
     assessments.forEach((a) => {
@@ -58,7 +74,6 @@ export default function ReportsPage() {
     ].filter((d) => d.value > 0);
   }, [assessments]);
 
-  /* ── Timeline: assessments created per day ── */
   const timelineData = useMemo(() => {
     const now = new Date();
     const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
@@ -79,7 +94,6 @@ export default function ReportsPage() {
     }));
   }, [assessments, range]);
 
-  /* ── Top missing requirements ── */
   const topMissing = useMemo(() => {
     const counts: Record<string, { text: string; count: number }> = {};
     assessments.forEach((a) => {
@@ -108,7 +122,7 @@ export default function ReportsPage() {
   const hasData = totalAssessments > 0;
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex min-h-screen app-shell">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Reports"]} />
@@ -121,17 +135,22 @@ export default function ReportsPage() {
                 Aggregate analytics across all your assessments.
               </p>
             </div>
-            <div className="flex gap-1 bg-white border border-line rounded-lg p-1">
+            <div
+              className="flex gap-1 rounded-lg p-1 border"
+              style={{
+                background: "var(--bg-surface)",
+                borderColor: "var(--border)",
+              }}
+            >
               {(["7d", "30d", "all"] as const).map((r) => (
                 <button
                   key={r}
                   onClick={() => setRange(r)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-                    range === r
-                      ? "bg-brand-600 text-white"
-                      : "text-ink-mute hover:text-ink"
-                  )}
+                  className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+                  style={{
+                    background: range === r ? "var(--brand)" : "transparent",
+                    color: range === r ? "#ffffff" : "var(--text-muted)",
+                  }}
                 >
                   {r === "7d" ? "7 days" : r === "30d" ? "30 days" : "All time"}
                 </button>
@@ -140,8 +159,12 @@ export default function ReportsPage() {
           </div>
 
           {!hasData ? (
-            <div className="card p-12 text-center">
-              <TrendingUp size={40} className="text-slate-300 mx-auto mb-3" />
+            <div className="card !p-12 text-center">
+              <TrendingUp
+                size={40}
+                className="mx-auto mb-3"
+                style={{ color: "var(--text-muted)" }}
+              />
               <p className="text-ink font-medium mb-1">No data yet</p>
               <p className="text-sm text-ink-mute">
                 Create assessments to see analytics here.
@@ -149,7 +172,6 @@ export default function ReportsPage() {
             </div>
           ) : (
             <>
-              {/* KPI cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <KPI
                   label="Assessments"
@@ -181,34 +203,34 @@ export default function ReportsPage() {
                 />
               </div>
 
-              {/* Charts row 1 */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                {/* Timeline */}
-                <div className="card p-6 lg:col-span-2">
+                <div className="card lg:col-span-2">
                   <h2 className="text-base font-semibold text-ink mb-4">
                     Assessments over time
                   </h2>
                   <div style={{ width: "100%", height: 260 }}>
                     <ResponsiveContainer>
                       <LineChart data={timelineData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <XAxis
                           dataKey="date"
-                          stroke="#64748b"
+                          stroke="var(--text-muted)"
                           fontSize={11}
                           tickLine={false}
                         />
                         <YAxis
-                          stroke="#64748b"
+                          stroke="var(--text-muted)"
                           fontSize={11}
                           tickLine={false}
                           allowDecimals={false}
                         />
                         <Tooltip
                           contentStyle={{
-                            border: "1px solid #e2e8f0",
+                            background: "var(--bg-surface)",
+                            border: "1px solid var(--border)",
                             borderRadius: 8,
                             fontSize: 12,
+                            color: "var(--text-strong)",
                           }}
                         />
                         <Line
@@ -224,8 +246,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                {/* Status pie */}
-                <div className="card p-6">
+                <div className="card">
                   <h2 className="text-base font-semibold text-ink mb-4">
                     By status
                   </h2>
@@ -248,9 +269,11 @@ export default function ReportsPage() {
                         </Pie>
                         <Tooltip
                           contentStyle={{
-                            border: "1px solid #e2e8f0",
+                            background: "var(--bg-surface)",
+                            border: "1px solid var(--border)",
                             borderRadius: 8,
                             fontSize: 12,
+                            color: "var(--text-strong)",
                           }}
                         />
                       </PieChart>
@@ -276,34 +299,34 @@ export default function ReportsPage() {
                 </div>
               </div>
 
-              {/* Charts row 2 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Requirements breakdown */}
-                <div className="card p-6">
+                <div className="card">
                   <h2 className="text-base font-semibold text-ink mb-4">
                     Requirement evidence quality
                   </h2>
                   <div style={{ width: "100%", height: 260 }}>
                     <ResponsiveContainer>
                       <BarChart data={reqData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <XAxis
                           dataKey="name"
-                          stroke="#64748b"
+                          stroke="var(--text-muted)"
                           fontSize={11}
                           tickLine={false}
                         />
                         <YAxis
-                          stroke="#64748b"
+                          stroke="var(--text-muted)"
                           fontSize={11}
                           tickLine={false}
                           allowDecimals={false}
                         />
                         <Tooltip
                           contentStyle={{
-                            border: "1px solid #e2e8f0",
+                            background: "var(--bg-surface)",
+                            border: "1px solid var(--border)",
                             borderRadius: 8,
                             fontSize: 12,
+                            color: "var(--text-strong)",
                           }}
                         />
                         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
@@ -316,8 +339,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                {/* Top missing */}
-                <div className="card p-6">
+                <div className="card">
                   <h2 className="text-base font-semibold text-ink mb-4">
                     Top missing requirements
                   </h2>
@@ -329,7 +351,13 @@ export default function ReportsPage() {
                     <ul className="space-y-3">
                       {topMissing.map((m, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-red-50 text-red-600 text-xs font-bold flex items-center justify-center shrink-0">
+                          <span
+                            className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0"
+                            style={{
+                              background: "var(--danger-soft)",
+                              color: "var(--danger)",
+                            }}
+                          >
                             {m.count}
                           </span>
                           <p className="text-sm text-ink-soft line-clamp-2">
@@ -342,9 +370,11 @@ export default function ReportsPage() {
                 </div>
               </div>
 
-              {/* Assessment performance table */}
-              <div className="card overflow-hidden">
-                <div className="px-6 py-4 border-b border-line">
+              <div className="card !p-0 overflow-hidden">
+                <div
+                  className="px-6 py-4 border-b"
+                  style={{ borderColor: "var(--border)" }}
+                >
                   <h2 className="text-base font-semibold text-ink">
                     Assessment performance
                   </h2>
@@ -366,7 +396,15 @@ export default function ReportsPage() {
                           (m) => m.status === "missing"
                         ).length;
                         return (
-                          <tr key={a.id} className="hover:bg-slate-50">
+                          <tr
+                            key={a.id}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.background = "var(--bg-hover)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.background = "transparent")
+                            }
+                          >
                             <td className="table-cell font-medium">{a.title}</td>
                             <td className="table-cell">
                               <span
@@ -384,7 +422,10 @@ export default function ReportsPage() {
                             </td>
                             <td className="table-cell">
                               <div className="flex items-center gap-2">
-                                <div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                                <div
+                                  className="w-16 h-1.5 rounded-full overflow-hidden"
+                                  style={{ background: "var(--border)" }}
+                                >
                                   <div
                                     className={cn(
                                       "h-full rounded-full",
@@ -405,9 +446,11 @@ export default function ReportsPage() {
                             <td className="table-cell">{a.mappings.length}</td>
                             <td className="table-cell">
                               {missing > 0 ? (
-                                <span className="chip-danger">{missing}</span>
+                                <span className="chip chip-danger">
+                                  {missing}
+                                </span>
                               ) : (
-                                <span className="text-ink-mute text-xs">—</span>
+                                <span className="text-xs text-ink-mute">—</span>
                               )}
                             </td>
                           </tr>
@@ -426,7 +469,11 @@ export default function ReportsPage() {
 }
 
 function KPI({
-  label, value, sub, icon: Icon, color,
+  label,
+  value,
+  sub,
+  icon: Icon,
+  color,
 }: {
   label: string;
   value: number | string;
@@ -434,20 +481,24 @@ function KPI({
   icon: any;
   color: "blue" | "green" | "amber" | "violet";
 }) {
-  const palette = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-emerald-50 text-emerald-600",
-    amber: "bg-amber-50 text-amber-600",
-    violet: "bg-violet-50 text-violet-600",
-  }[color];
+  const palettes = {
+    blue: { bg: "rgba(59, 130, 246, 0.15)", fg: "#3b82f6" },
+    green: { bg: "rgba(16, 185, 129, 0.15)", fg: "#10b981" },
+    amber: { bg: "rgba(245, 158, 11, 0.15)", fg: "#f59e0b" },
+    violet: { bg: "rgba(139, 92, 246, 0.15)", fg: "#8b5cf6" },
+  };
+  const palette = palettes[color];
 
   return (
-    <div className="card p-5">
+    <div className="card">
       <div className="flex items-start justify-between mb-3">
         <p className="text-xs font-medium text-ink-mute uppercase tracking-wide">
           {label}
         </p>
-        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", palette)}>
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center"
+          style={{ background: palette.bg, color: palette.fg }}
+        >
           <Icon size={16} />
         </div>
       </div>

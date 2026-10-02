@@ -1,7 +1,9 @@
 "use client";
 
 export default function Donut({
-  percent, size = 160, stroke = 14,
+  percent,
+  size = 160,
+  stroke = 14,
 }: {
   percent: number;
   size?: number;
@@ -14,11 +16,24 @@ export default function Donut({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#e2e8f0" strokeWidth={stroke} fill="none" />
         <circle
-          cx={size / 2} cy={size / 2} r={radius}
-          stroke="#10b981" strokeWidth={stroke} fill="none"
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="var(--border)"
+          strokeWidth={stroke}
+          fill="none"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#10b981"
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
           style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
         />
       </svg>

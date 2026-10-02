@@ -7,6 +7,9 @@ export type MappingStatus =
   | "weak"
   | "ambiguous";
 
+export type Theme = "light" | "dark" | "system";
+export type Density = "comfortable" | "compact";
+
 export interface Mapping {
   id: string;
   requirementId: string;
@@ -56,11 +59,23 @@ export interface Template {
   updatedAt: string;
 }
 
+export interface Preferences {
+  name: string;
+  email: string;
+  organization: string;
+  theme: Theme;
+  density: Density;
+  notifyEmail: boolean;
+  notifyAnalysis: boolean;
+  notifyStale: boolean;
+}
+
 export interface AppState {
   assessments: Assessment[];
   documents: StoredDocument[];
   templates: Template[];
   currentId: string | null;
+  preferences: Preferences;
 
   addAssessment: (a: Assessment) => void;
   updateAssessment: (id: string, patch: Partial<Assessment>) => void;
@@ -75,4 +90,6 @@ export interface AppState {
   updateTemplate: (id: string, patch: Partial<Template>) => void;
   deleteTemplate: (id: string) => void;
   incrementTemplateUsage: (id: string) => void;
+
+  updatePreferences: (patch: Partial<Preferences>) => void;
 }

@@ -8,7 +8,14 @@ import Topbar from "@/components/Topbar";
 import Donut from "@/components/Donut";
 import { useStore } from "@/store/useStore";
 import { cn, formatDate } from "@/lib/utils";
-import { CheckCircle2, XCircle, AlertTriangle, X, RotateCcw, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  X,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 import type { Mapping } from "@/types";
 
 const TABS = [
@@ -21,7 +28,13 @@ const TABS = [
 
 export default function ResultsPage() {
   const router = useRouter();
-  const { assessments, currentId, updateAssessment, deleteAssessment } = useStore();
+
+  // ✅ Individual selectors
+  const assessments = useStore((s) => s.assessments);
+  const currentId = useStore((s) => s.currentId);
+  const updateAssessment = useStore((s) => s.updateAssessment);
+  const deleteAssessment = useStore((s) => s.deleteAssessment);
+
   const [tab, setTab] = useState("Overview");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -47,12 +60,17 @@ export default function ResultsPage() {
   const missingList = mappings.filter((m) => m.status === "missing");
   const selected = mappings.find((m) => m.id === selectedId) || null;
 
-  const updateMappingStatus = (id: string, status: Mapping["status"], notes?: string) => {
+  const updateMappingStatus = (
+    id: string,
+    status: Mapping["status"],
+    notes?: string
+  ) => {
     const updated = mappings.map((m) =>
       m.id === id ? { ...m, status, userNotes: notes ?? m.userNotes } : m
     );
     const newSupported = updated.filter((m) => m.status === "accepted").length;
-    const newPercent = total === 0 ? 0 : Math.round((newSupported / total) * 100);
+    const newPercent =
+      total === 0 ? 0 : Math.round((newSupported / total) * 100);
     updateAssessment(assessment.id, {
       mappings: updated,
       isStale: true,
@@ -72,7 +90,7 @@ export default function ResultsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex min-h-screen bg-canvas app-shell">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Assessments", assessment.title]} />
@@ -80,7 +98,9 @@ export default function ResultsPage() {
         <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
           <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-ink">{assessment.title}</h1>
+              <h1 className="text-2xl font-bold text-ink">
+                {assessment.title}
+              </h1>
               <div className="flex items-center gap-2 text-xs text-ink-mute mt-1 font-mono flex-wrap">
                 <span>{assessment.guidelineName || "guideline.txt"}</span>
                 <span>·</span>
@@ -93,7 +113,10 @@ export default function ResultsPage() {
               <button onClick={rerun} className="btn-secondary">
                 <RotateCcw size={16} /> Re-run
               </button>
-              <button onClick={remove} className="btn-secondary text-red-600 hover:bg-red-50">
+              <button
+                onClick={remove}
+                className="btn-secondary text-red-600 hover:bg-red-50"
+              >
                 <Trash2 size={16} /> Delete
               </button>
             </div>
@@ -109,9 +132,13 @@ export default function ResultsPage() {
               >
                 <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
                   <AlertTriangle size={16} />
-                  <span>You've modified the review since the last analysis.</span>
+                  <span>
+                    You've modified the review since the last analysis.
+                  </span>
                   <button
-                    onClick={() => updateAssessment(assessment.id, { isStale: false })}
+                    onClick={() =>
+                      updateAssessment(assessment.id, { isStale: false })
+                    }
                     className="ml-auto text-xs font-medium underline"
                   >
                     Dismiss
@@ -138,9 +165,10 @@ export default function ResultsPage() {
                   {t === "Missing Documents" && missing > 0 && (
                     <span className="chip-danger">{missing}</span>
                   )}
-                  {t === "Clarification Questions" && clarifications.length > 0 && (
-                    <span className="chip-info">{clarifications.length}</span>
-                  )}
+                  {t === "Clarification Questions" &&
+                    clarifications.length > 0 && (
+                      <span className="chip-info">{clarifications.length}</span>
+                    )}
                 </button>
               ))}
             </div>
@@ -148,8 +176,10 @@ export default function ResultsPage() {
 
           {tab === "Overview" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="card p-6 lg:col-span-2">
-                <h2 className="text-base font-semibold text-ink mb-6">Completeness</h2>
+              <div className="card lg:col-span-2">
+                <h2 className="text-base font-semibold text-ink mb-6">
+                  Completeness
+                </h2>
                 <div className="flex items-center gap-8 flex-wrap">
                   <Donut percent={percent} />
                   <div className="flex-1 min-w-[200px]">
@@ -157,9 +187,21 @@ export default function ResultsPage() {
                       {supported} of {total} requirements complete
                     </p>
                     <ul className="space-y-3">
-                      <Legend color="bg-emerald-500" label="Supported" value={supported} />
-                      <Legend color="bg-amber-500" label="Needs review" value={needsReview} />
-                      <Legend color="bg-red-500" label="Missing" value={missing} />
+                      <Legend
+                        color="bg-emerald-500"
+                        label="Supported"
+                        value={supported}
+                      />
+                      <Legend
+                        color="bg-amber-500"
+                        label="Needs review"
+                        value={needsReview}
+                      />
+                      <Legend
+                        color="bg-red-500"
+                        label="Missing"
+                        value={missing}
+                      />
                     </ul>
                   </div>
                 </div>
@@ -167,7 +209,11 @@ export default function ResultsPage() {
 
               <div className="space-y-4">
                 <StatBlock label="Supported" value={supported} color="emerald" />
-                <StatBlock label="Needs review" value={needsReview} color="amber" />
+                <StatBlock
+                  label="Needs review"
+                  value={needsReview}
+                  color="amber"
+                />
                 <StatBlock label="Missing" value={missing} color="red" />
                 <StatBlock label="Total" value={total} color="slate" />
               </div>
@@ -175,9 +221,11 @@ export default function ResultsPage() {
           )}
 
           {tab === "Requirements" && (
-            <div className="card overflow-hidden">
+            <div className="card !p-0 overflow-hidden">
               {mappings.length === 0 ? (
-                <p className="text-center py-12 text-ink-mute text-sm">No mappings available.</p>
+                <p className="text-center py-12 text-ink-mute text-sm">
+                  No mappings available.
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -201,13 +249,17 @@ export default function ResultsPage() {
                             {m.requirementId}
                           </td>
                           <td className="table-cell max-w-md">
-                            <p className="text-sm text-ink line-clamp-2">{m.requirementText}</p>
+                            <p className="text-sm text-ink line-clamp-2">
+                              {m.requirementText}
+                            </p>
                           </td>
                           <td className="table-cell">
                             <EvidenceChip status={m.status} />
                           </td>
                           <td className="table-cell">
-                            <span className="text-sm font-medium">{m.confidence}%</span>
+                            <span className="text-sm font-medium">
+                              {m.confidence}%
+                            </span>
                           </td>
                           <td className="table-cell">
                             <ReviewChip status={m.status} />
@@ -222,12 +274,17 @@ export default function ResultsPage() {
           )}
 
           {tab === "Missing Documents" && (
-            <div className="card p-6">
+            <div className="card">
               {missingList.length === 0 ? (
                 <div className="text-center py-12">
-                  <CheckCircle2 size={40} className="text-emerald-500 mx-auto mb-3" />
+                  <CheckCircle2
+                    size={40}
+                    className="text-emerald-500 mx-auto mb-3"
+                  />
                   <p className="text-ink font-medium">No missing documents</p>
-                  <p className="text-sm text-ink-mute">Every requirement has supporting evidence.</p>
+                  <p className="text-sm text-ink-mute">
+                    Every requirement has supporting evidence.
+                  </p>
                 </div>
               ) : (
                 <ul className="space-y-3">
@@ -237,10 +294,17 @@ export default function ResultsPage() {
                       onClick={() => setSelectedId(m.id)}
                       className="border border-line rounded-lg p-4 flex items-start gap-3 hover:bg-slate-50 cursor-pointer"
                     >
-                      <XCircle size={18} className="text-red-500 mt-0.5 shrink-0" />
+                      <XCircle
+                        size={18}
+                        className="text-red-500 mt-0.5 shrink-0"
+                      />
                       <div>
-                        <p className="text-sm font-medium text-ink">{m.requirementText}</p>
-                        <p className="text-xs text-ink-mute mt-1">Source: {m.sourceCitation}</p>
+                        <p className="text-sm font-medium text-ink">
+                          {m.requirementText}
+                        </p>
+                        <p className="text-xs text-ink-mute mt-1">
+                          Source: {m.sourceCitation}
+                        </p>
                       </div>
                     </li>
                   ))}
@@ -250,7 +314,7 @@ export default function ResultsPage() {
           )}
 
           {tab === "Clarification Questions" && (
-            <div className="card p-6">
+            <div className="card">
               {clarifications.length === 0 ? (
                 <p className="text-sm text-ink-mute text-center py-8">
                   No clarification questions generated.
@@ -262,7 +326,9 @@ export default function ResultsPage() {
                       <span className="text-xs font-mono text-brand-600 font-semibold shrink-0 w-8 pt-0.5">
                         Q{i + 1}
                       </span>
-                      <p className="text-sm text-ink-soft leading-relaxed">{q}</p>
+                      <p className="text-sm text-ink-soft leading-relaxed">
+                        {q}
+                      </p>
                     </li>
                   ))}
                 </ol>
@@ -271,7 +337,7 @@ export default function ResultsPage() {
           )}
 
           {tab === "Audit Trail" && (
-            <div className="card p-6">
+            <div className="card">
               <ol className="space-y-4">
                 <AuditRow
                   title="Analysis generated"
@@ -313,13 +379,17 @@ export default function ResultsPage() {
             >
               <div className="sticky top-0 bg-white border-b border-line px-6 py-4 flex items-center justify-between z-10">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm text-ink-mute">{selected.requirementId}</span>
+                  <span className="font-mono text-sm text-ink-mute">
+                    {selected.requirementId}
+                  </span>
                   <span
                     className={cn(
                       "chip",
-                      selected.status === "missing" ? "chip-danger"
-                      : selected.status === "weak" ? "chip-warning"
-                      : "chip-success"
+                      selected.status === "missing"
+                        ? "chip-danger"
+                        : selected.status === "weak"
+                        ? "chip-warning"
+                        : "chip-success"
                     )}
                   >
                     {selected.status}
@@ -338,7 +408,9 @@ export default function ResultsPage() {
                   <h3 className="text-base font-semibold text-ink mb-2">
                     {selected.requirementText}
                   </h3>
-                  <p className="text-xs text-ink-mute">Source: {selected.sourceCitation}</p>
+                  <p className="text-xs text-ink-mute">
+                    Source: {selected.sourceCitation}
+                  </p>
                 </div>
 
                 <div className="border border-line rounded-lg p-4">
@@ -351,9 +423,13 @@ export default function ResultsPage() {
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-xs text-ink-mute">Confidence</span>
-                    <span className="text-sm font-semibold text-ink">{selected.confidence}%</span>
+                    <span className="text-sm font-semibold text-ink">
+                      {selected.confidence}%
+                    </span>
                   </div>
-                  <p className="text-sm text-ink-soft leading-relaxed">{selected.aiReasoning}</p>
+                  <p className="text-sm text-ink-soft leading-relaxed">
+                    {selected.aiReasoning}
+                  </p>
                 </div>
 
                 {selected.evidenceQuote && (
@@ -362,7 +438,9 @@ export default function ResultsPage() {
                       Application Evidence
                     </h4>
                     <blockquote className="border-l-4 border-brand-500 bg-slate-50 px-4 py-3 rounded-r-lg">
-                      <p className="text-sm text-ink italic">"{selected.evidenceQuote}"</p>
+                      <p className="text-sm text-ink italic">
+                        "{selected.evidenceQuote}"
+                      </p>
                     </blockquote>
                   </div>
                 )}
@@ -374,7 +452,10 @@ export default function ResultsPage() {
                   <select
                     value={selected.status}
                     onChange={(e) =>
-                      updateMappingStatus(selected.id, e.target.value as Mapping["status"])
+                      updateMappingStatus(
+                        selected.id,
+                        e.target.value as Mapping["status"]
+                      )
                     }
                     className="input mb-3"
                   >
@@ -388,26 +469,36 @@ export default function ResultsPage() {
                   <textarea
                     value={selected.userNotes || ""}
                     onChange={(e) =>
-                      updateMappingStatus(selected.id, selected.status, e.target.value)
+                      updateMappingStatus(
+                        selected.id,
+                        selected.status,
+                        e.target.value
+                      )
                     }
                     placeholder="Add reviewer note (optional)"
                     className="input h-24 resize-none"
                   />
                   <div className="grid grid-cols-3 gap-2 mt-3">
                     <button
-                      onClick={() => updateMappingStatus(selected.id, "accepted")}
+                      onClick={() =>
+                        updateMappingStatus(selected.id, "accepted")
+                      }
                       className="btn-success text-xs py-2"
                     >
                       Confirm
                     </button>
                     <button
-                      onClick={() => updateMappingStatus(selected.id, "rejected")}
+                      onClick={() =>
+                        updateMappingStatus(selected.id, "rejected")
+                      }
                       className="btn-danger text-xs py-2"
                     >
                       Reject
                     </button>
                     <button
-                      onClick={() => updateMappingStatus(selected.id, "pending")}
+                      onClick={() =>
+                        updateMappingStatus(selected.id, "pending")
+                      }
                       className="btn-secondary text-xs py-2"
                     >
                       Reset
@@ -423,7 +514,15 @@ export default function ResultsPage() {
   );
 }
 
-function Legend({ color, label, value }: { color: string; label: string; value: number }) {
+function Legend({
+  color,
+  label,
+  value,
+}: {
+  color: string;
+  label: string;
+  value: number;
+}) {
   return (
     <li className="flex items-center gap-3 text-sm">
       <span className={cn("w-2.5 h-2.5 rounded-full", color)} />
@@ -434,7 +533,9 @@ function Legend({ color, label, value }: { color: string; label: string; value: 
 }
 
 function StatBlock({
-  label, value, color,
+  label,
+  value,
+  color,
 }: {
   label: string;
   value: number;
@@ -448,7 +549,12 @@ function StatBlock({
   }[color];
 
   return (
-    <div className={cn("rounded-xl p-4 flex items-center justify-between", palette)}>
+    <div
+      className={cn(
+        "rounded-xl p-4 flex items-center justify-between",
+        palette
+      )}
+    >
       <span className="text-sm font-medium">{label}</span>
       <span className="text-xl font-bold">{value}</span>
     </div>
@@ -458,20 +564,27 @@ function StatBlock({
 function EvidenceChip({ status }: { status: Mapping["status"] }) {
   if (status === "missing") return <span className="chip-danger">Missing</span>;
   if (status === "weak") return <span className="chip-warning">Weak</span>;
-  if (status === "ambiguous") return <span className="chip-warning">Ambiguous</span>;
-  if (status === "accepted") return <span className="chip-success">Supported</span>;
-  if (status === "rejected") return <span className="chip-neutral">Rejected</span>;
+  if (status === "ambiguous")
+    return <span className="chip-warning">Ambiguous</span>;
+  if (status === "accepted")
+    return <span className="chip-success">Supported</span>;
+  if (status === "rejected")
+    return <span className="chip-neutral">Rejected</span>;
   return <span className="chip-success">Supported</span>;
 }
 
 function ReviewChip({ status }: { status: Mapping["status"] }) {
-  if (status === "accepted") return <span className="chip-success">Confirmed</span>;
-  if (status === "rejected") return <span className="chip-danger">Rejected</span>;
+  if (status === "accepted")
+    return <span className="chip-success">Confirmed</span>;
+  if (status === "rejected")
+    return <span className="chip-danger">Rejected</span>;
   return <span className="chip-warning">Pending</span>;
 }
 
 function AuditRow({
-  title, time, description,
+  title,
+  time,
+  description,
 }: {
   title: string;
   time: string;

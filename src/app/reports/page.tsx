@@ -19,12 +19,7 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
-import {
-  TrendingUp,
-  FileText,
-  CheckCircle2,
-  AlertTriangle,
-} from "lucide-react";
+import { TrendingUp, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
 
 const COLORS = {
   emerald: "#10b981",
@@ -127,8 +122,8 @@ export default function ReportsPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Reports"]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
-          <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
             <div>
               <h1 className="text-2xl font-bold text-ink">Reports</h1>
               <p className="text-sm text-ink-mute mt-1">
@@ -136,7 +131,7 @@ export default function ReportsPage() {
               </p>
             </div>
             <div
-              className="flex gap-1 rounded-lg p-1 border"
+              className="flex gap-1 rounded-lg p-1 border self-start"
               style={{
                 background: "var(--bg-surface)",
                 borderColor: "var(--border)",
@@ -152,14 +147,14 @@ export default function ReportsPage() {
                     color: range === r ? "#ffffff" : "var(--text-muted)",
                   }}
                 >
-                  {r === "7d" ? "7 days" : r === "30d" ? "30 days" : "All time"}
+                  {r === "7d" ? "7 days" : r === "30d" ? "30 days" : "All"}
                 </button>
               ))}
             </div>
           </div>
 
           {!hasData ? (
-            <div className="card !p-12 text-center">
+            <div className="card !p-8 sm:!p-12 text-center">
               <TrendingUp
                 size={40}
                 className="mx-auto mb-3"
@@ -172,55 +167,55 @@ export default function ReportsPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
                 <KPI
                   label="Assessments"
                   value={totalAssessments}
-                  sub={`${templates.length} templates · ${documents.length} docs`}
+                  sub={`${templates.length} templates`}
                   icon={FileText}
                   color="blue"
                 />
                 <KPI
                   label="Avg. Completeness"
                   value={`${avgCompleteness}%`}
-                  sub="Across all assessments"
+                  sub="Across all"
                   icon={CheckCircle2}
                   color="green"
                 />
                 <KPI
                   label="Total Requirements"
                   value={totalMappings}
-                  sub="Mapped across documents"
+                  sub="Mapped"
                   icon={TrendingUp}
                   color="violet"
                 />
                 <KPI
-                  label="Missing Evidence"
+                  label="Missing"
                   value={reqData.find((r) => r.name === "Missing")?.value || 0}
-                  sub="Require follow-up"
+                  sub="Follow-up"
                   icon={AlertTriangle}
                   color="amber"
                 />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
                 <div className="card lg:col-span-2">
                   <h2 className="text-base font-semibold text-ink mb-4">
                     Assessments over time
                   </h2>
-                  <div style={{ width: "100%", height: 260 }}>
+                  <div style={{ width: "100%", height: 240 }}>
                     <ResponsiveContainer>
                       <LineChart data={timelineData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <XAxis
                           dataKey="date"
                           stroke="var(--text-muted)"
-                          fontSize={11}
+                          fontSize={10}
                           tickLine={false}
                         />
                         <YAxis
                           stroke="var(--text-muted)"
-                          fontSize={11}
+                          fontSize={10}
                           tickLine={false}
                           allowDecimals={false}
                         />
@@ -250,7 +245,7 @@ export default function ReportsPage() {
                   <h2 className="text-base font-semibold text-ink mb-4">
                     By status
                   </h2>
-                  <div style={{ width: "100%", height: 260 }}>
+                  <div style={{ width: "100%", height: 240 }}>
                     <ResponsiveContainer>
                       <PieChart>
                         <Pie
@@ -259,8 +254,8 @@ export default function ReportsPage() {
                           nameKey="name"
                           cx="50%"
                           cy="50%"
-                          innerRadius={60}
-                          outerRadius={90}
+                          innerRadius={50}
+                          outerRadius={80}
                           paddingAngle={2}
                         >
                           {statusData.map((entry, i) => (
@@ -299,24 +294,24 @@ export default function ReportsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
                 <div className="card">
                   <h2 className="text-base font-semibold text-ink mb-4">
-                    Requirement evidence quality
+                    Evidence quality
                   </h2>
-                  <div style={{ width: "100%", height: 260 }}>
+                  <div style={{ width: "100%", height: 240 }}>
                     <ResponsiveContainer>
                       <BarChart data={reqData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <XAxis
                           dataKey="name"
                           stroke="var(--text-muted)"
-                          fontSize={11}
+                          fontSize={10}
                           tickLine={false}
                         />
                         <YAxis
                           stroke="var(--text-muted)"
-                          fontSize={11}
+                          fontSize={10}
                           tickLine={false}
                           allowDecimals={false}
                         />
@@ -372,7 +367,7 @@ export default function ReportsPage() {
 
               <div className="card !p-0 overflow-hidden">
                 <div
-                  className="px-6 py-4 border-b"
+                  className="px-4 sm:px-6 py-4 border-b"
                   style={{ borderColor: "var(--border)" }}
                 >
                   <h2 className="text-base font-semibold text-ink">
@@ -380,7 +375,7 @@ export default function ReportsPage() {
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full mobile-cards">
                     <thead>
                       <tr>
                         <th className="table-head">Title</th>
@@ -396,17 +391,9 @@ export default function ReportsPage() {
                           (m) => m.status === "missing"
                         ).length;
                         return (
-                          <tr
-                            key={a.id}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.background = "var(--bg-hover)")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.background = "transparent")
-                            }
-                          >
+                          <tr key={a.id}>
                             <td className="table-cell font-medium">{a.title}</td>
-                            <td className="table-cell">
+                            <td className="table-cell" data-label="Status">
                               <span
                                 className={cn(
                                   "chip",
@@ -420,7 +407,7 @@ export default function ReportsPage() {
                                 {a.status}
                               </span>
                             </td>
-                            <td className="table-cell">
+                            <td className="table-cell" data-label="Completeness">
                               <div className="flex items-center gap-2">
                                 <div
                                   className="w-16 h-1.5 rounded-full overflow-hidden"
@@ -443,12 +430,12 @@ export default function ReportsPage() {
                                 </span>
                               </div>
                             </td>
-                            <td className="table-cell">{a.mappings.length}</td>
-                            <td className="table-cell">
+                            <td className="table-cell" data-label="Requirements">
+                              {a.mappings.length}
+                            </td>
+                            <td className="table-cell" data-label="Missing">
                               {missing > 0 ? (
-                                <span className="chip chip-danger">
-                                  {missing}
-                                </span>
+                                <span className="chip chip-danger">{missing}</span>
                               ) : (
                                 <span className="text-xs text-ink-mute">—</span>
                               )}
@@ -491,19 +478,19 @@ function KPI({
 
   return (
     <div className="card">
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs font-medium text-ink-mute uppercase tracking-wide">
+      <div className="flex items-start justify-between mb-2">
+        <p className="text-[10px] sm:text-xs font-medium text-ink-mute uppercase tracking-wide">
           {label}
         </p>
         <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center"
+          className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0"
           style={{ background: palette.bg, color: palette.fg }}
         >
-          <Icon size={16} />
+          <Icon size={14} />
         </div>
       </div>
-      <p className="text-2xl font-bold text-ink">{value}</p>
-      <p className="text-xs text-ink-mute mt-1">{sub}</p>
+      <p className="text-xl sm:text-2xl font-bold text-ink">{value}</p>
+      <p className="text-[10px] sm:text-xs text-ink-mute mt-1 truncate">{sub}</p>
     </div>
   );
 }

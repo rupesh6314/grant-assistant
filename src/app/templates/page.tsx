@@ -139,8 +139,8 @@ export default function TemplatesPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Templates"]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
-          <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
             <div>
               <h1 className="text-2xl font-bold text-ink">Templates</h1>
               <p className="text-sm text-ink-mute mt-1">
@@ -157,8 +157,8 @@ export default function TemplatesPage() {
             </button>
           </div>
 
-          <div className="card mb-6 !p-3 flex items-center gap-3 flex-wrap">
-            <div className="relative flex-1 min-w-[200px]">
+          <div className="card mb-6 !p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="relative flex-1 min-w-0">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2"
@@ -174,7 +174,7 @@ export default function TemplatesPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="input max-w-[180px] cursor-pointer"
+              className="input sm:max-w-[180px] cursor-pointer"
             >
               <option value="all">All categories</option>
               {CATEGORIES.map((c) => (
@@ -187,7 +187,7 @@ export default function TemplatesPage() {
 
           {templates.length === 0 ? (
             <div
-              className="card !p-12 text-center border-dashed border-2 cursor-pointer"
+              className="card !p-8 sm:!p-12 text-center border-dashed border-2 cursor-pointer"
               style={{ borderColor: "var(--border)" }}
               onClick={openCreate}
             >
@@ -215,7 +215,7 @@ export default function TemplatesPage() {
               </div>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="card !p-12 text-center">
+            <div className="card !p-8 sm:!p-12 text-center">
               <Search
                 size={40}
                 className="mx-auto mb-3"
@@ -224,7 +224,7 @@ export default function TemplatesPage() {
               <p className="text-ink font-medium">No matching templates</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filtered.map((t) => (
                 <div key={t.id} className="card group flex flex-col">
                   <div className="flex items-start justify-between mb-3">
@@ -246,7 +246,7 @@ export default function TemplatesPage() {
                     {formatDate(t.updatedAt)}
                   </p>
 
-                  <div className="mt-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="mt-auto flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => apply(t)}
                       style={{ ...smallPrimaryButtonStyle, flex: 1 }}
@@ -262,12 +262,6 @@ export default function TemplatesPage() {
                       }}
                       className="w-8 h-8 rounded-lg flex items-center justify-center"
                       style={{ color: "var(--text-muted)" }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = "var(--bg-hover)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = "transparent")
-                      }
                       title="Edit"
                     >
                       <Edit3 size={14} />
@@ -276,12 +270,6 @@ export default function TemplatesPage() {
                       onClick={() => clone(t)}
                       className="w-8 h-8 rounded-lg flex items-center justify-center"
                       style={{ color: "var(--text-muted)" }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = "var(--bg-hover)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = "transparent")
-                      }
                       title="Clone"
                     >
                       <Copy size={14} />
@@ -292,14 +280,6 @@ export default function TemplatesPage() {
                       }}
                       className="w-8 h-8 rounded-lg flex items-center justify-center"
                       style={{ color: "var(--text-muted)" }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "var(--danger-soft)";
-                        e.currentTarget.style.color = "var(--danger)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.color = "var(--text-muted)";
-                      }}
                       title="Delete"
                     >
                       <Trash2 size={14} />
@@ -323,14 +303,14 @@ export default function TemplatesPage() {
             style={{ background: "rgba(0,0,0,0.4)" }}
           />
           <div
-            className="fixed inset-x-4 top-20 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[720px] rounded-xl z-50 flex flex-col overflow-hidden"
+            className="modal-mobile-full fixed inset-x-4 top-20 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[720px] rounded-xl z-50 flex flex-col overflow-hidden"
             style={{
               background: "var(--bg-surface)",
               boxShadow: "var(--shadow-pop)",
             }}
           >
             <div
-              className="px-6 py-4 flex items-center justify-between border-b"
+              className="px-4 sm:px-6 py-4 flex items-center justify-between border-b"
               style={{ borderColor: "var(--border)" }}
             >
               <h3 className="font-semibold text-ink">
@@ -348,7 +328,7 @@ export default function TemplatesPage() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto p-6 space-y-4">
+            <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-ink mb-1.5">
                   Template Name
@@ -363,7 +343,7 @@ export default function TemplatesPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-ink mb-1.5">
                     Category
@@ -421,7 +401,7 @@ export default function TemplatesPage() {
                     setEditing({ ...editing, guidelineText: e.target.value })
                   }
                   placeholder="Paste the grant guideline here..."
-                  className="input h-64 resize-none font-mono text-xs"
+                  className="input h-48 sm:h-64 resize-none font-mono text-xs"
                 />
                 <p className="text-xs text-ink-mute mt-1">
                   {editing.guidelineText.length} characters
@@ -430,7 +410,7 @@ export default function TemplatesPage() {
             </div>
 
             <div
-              className="px-6 py-4 flex justify-end gap-2 border-t"
+              className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-end gap-2 border-t"
               style={{ borderColor: "var(--border)" }}
             >
               <button
@@ -457,17 +437,11 @@ export default function TemplatesPage() {
                       : "pointer",
                 }}
                 onMouseEnter={(e) => {
-                  if (
-                    editing.name.trim() &&
-                    editing.guidelineText.trim()
-                  )
+                  if (editing.name.trim() && editing.guidelineText.trim())
                     hoverOn(e);
                 }}
                 onMouseLeave={(e) => {
-                  if (
-                    editing.name.trim() &&
-                    editing.guidelineText.trim()
-                  )
+                  if (editing.name.trim() && editing.guidelineText.trim())
                     hoverOff(e);
                 }}
               >

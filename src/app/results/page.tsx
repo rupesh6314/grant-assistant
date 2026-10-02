@@ -8,14 +8,7 @@ import Topbar from "@/components/Topbar";
 import Donut from "@/components/Donut";
 import { useStore } from "@/store/useStore";
 import { cn, formatDate } from "@/lib/utils";
-import {
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  X,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, X, RotateCcw, Trash2 } from "lucide-react";
 import type { Mapping } from "@/types";
 
 const TABS = [
@@ -28,8 +21,6 @@ const TABS = [
 
 export default function ResultsPage() {
   const router = useRouter();
-
-  // ✅ Individual selectors
   const assessments = useStore((s) => s.assessments);
   const currentId = useStore((s) => s.currentId);
   const updateAssessment = useStore((s) => s.updateAssessment);
@@ -41,9 +32,7 @@ export default function ResultsPage() {
   const assessment = assessments.find((a) => a.id === currentId);
 
   useEffect(() => {
-    if (!assessment) {
-      router.push("/");
-    }
+    if (!assessment) router.push("/");
   }, [assessment, router]);
 
   if (!assessment) return null;
@@ -69,8 +58,7 @@ export default function ResultsPage() {
       m.id === id ? { ...m, status, userNotes: notes ?? m.userNotes } : m
     );
     const newSupported = updated.filter((m) => m.status === "accepted").length;
-    const newPercent =
-      total === 0 ? 0 : Math.round((newSupported / total) * 100);
+    const newPercent = total === 0 ? 0 : Math.round((newSupported / total) * 100);
     updateAssessment(assessment.id, {
       mappings: updated,
       isStale: true,
@@ -78,44 +66,39 @@ export default function ResultsPage() {
     });
   };
 
-  const rerun = () => {
-    router.push("/new");
-  };
-
-  const remove = () => {
-    if (confirm("Delete this assessment?")) {
-      deleteAssessment(assessment.id);
-      router.push("/");
-    }
-  };
-
   return (
-    <div className="flex min-h-screen bg-canvas app-shell">
+    <div className="flex min-h-screen app-shell">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Assessments", assessment.title]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
-          <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between flex-wrap gap-3 sm:gap-4 mb-6">
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-ink">
+              <h1 className="text-xl sm:text-2xl font-bold text-ink">
                 {assessment.title}
               </h1>
               <div className="flex items-center gap-2 text-xs text-ink-mute mt-1 font-mono flex-wrap">
-                <span>{assessment.guidelineName || "guideline.txt"}</span>
+                <span className="truncate">{assessment.guidelineName || "guideline.txt"}</span>
                 <span>·</span>
-                <span>{assessment.applicationName || "application.txt"}</span>
+                <span className="truncate">{assessment.applicationName || "application.txt"}</span>
                 <span>·</span>
                 <span>Updated {formatDate(assessment.updatedAt)}</span>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={rerun} className="btn-secondary">
+            <div className="flex gap-2 flex-wrap">
+              <button onClick={() => router.push("/new")} className="btn-secondary">
                 <RotateCcw size={16} /> Re-run
               </button>
               <button
-                onClick={remove}
-                className="btn-secondary text-red-600 hover:bg-red-50"
+                onClick={() => {
+                  if (confirm("Delete this assessment?")) {
+                    deleteAssessment(assessment.id);
+                    router.push("/");
+                  }
+                }}
+                className="btn-secondary"
+                style={{ color: "var(--danger)" }}
               >
                 <Trash2 size={16} /> Delete
               </button>
@@ -130,16 +113,22 @@ export default function ResultsPage() {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden mb-6"
               >
-                <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+                <div
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
+                  style={{
+                    background: "var(--warning-soft)",
+                    color: "var(--warning)",
+                  }}
+                >
                   <AlertTriangle size={16} />
-                  <span>
+                  <span className="flex-1">
                     You've modified the review since the last analysis.
                   </span>
                   <button
                     onClick={() =>
                       updateAssessment(assessment.id, { isStale: false })
                     }
-                    className="ml-auto text-xs font-medium underline"
+                    className="text-xs font-medium underline"
                   >
                     Dismiss
                   </button>
@@ -148,72 +137,54 @@ export default function ResultsPage() {
             )}
           </AnimatePresence>
 
-          <div className="border-b border-line mb-6 overflow-x-auto">
-            <div className="flex gap-6 -mb-px min-w-max">
+          <div className="tabs-scroll mb-6 border-b" style={{ borderColor: "var(--border)" }}>
+            <div className="flex gap-4 sm:gap-6 -mb-px min-w-max">
               {TABS.map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={cn(
-                    "pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex items-center gap-2",
-                    tab === t
-                      ? "border-brand-600 text-brand-600"
-                      : "border-transparent text-ink-mute hover:text-ink"
-                  )}
+                  className="pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex items-center gap-2"
+                  style={{
+                    borderColor: tab === t ? "var(--brand)" : "transparent",
+                    color: tab === t ? "var(--brand)" : "var(--text-muted)",
+                  }}
                 >
                   {t}
                   {t === "Missing Documents" && missing > 0 && (
-                    <span className="chip-danger">{missing}</span>
+                    <span className="chip chip-danger">{missing}</span>
                   )}
-                  {t === "Clarification Questions" &&
-                    clarifications.length > 0 && (
-                      <span className="chip-info">{clarifications.length}</span>
-                    )}
+                  {t === "Clarification Questions" && clarifications.length > 0 && (
+                    <span className="chip chip-info">{clarifications.length}</span>
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
           {tab === "Overview" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="card lg:col-span-2">
                 <h2 className="text-base font-semibold text-ink mb-6">
                   Completeness
                 </h2>
-                <div className="flex items-center gap-8 flex-wrap">
+                <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
                   <Donut percent={percent} />
-                  <div className="flex-1 min-w-[200px]">
+                  <div className="w-full sm:flex-1">
                     <p className="text-sm text-ink font-medium mb-4">
                       {supported} of {total} requirements complete
                     </p>
                     <ul className="space-y-3">
-                      <Legend
-                        color="bg-emerald-500"
-                        label="Supported"
-                        value={supported}
-                      />
-                      <Legend
-                        color="bg-amber-500"
-                        label="Needs review"
-                        value={needsReview}
-                      />
-                      <Legend
-                        color="bg-red-500"
-                        label="Missing"
-                        value={missing}
-                      />
+                      <Legend color="#10b981" label="Supported" value={supported} />
+                      <Legend color="#f59e0b" label="Needs review" value={needsReview} />
+                      <Legend color="#ef4444" label="Missing" value={missing} />
                     </ul>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                 <StatBlock label="Supported" value={supported} color="emerald" />
-                <StatBlock
-                  label="Needs review"
-                  value={needsReview}
-                  color="amber"
-                />
+                <StatBlock label="Needs review" value={needsReview} color="amber" />
                 <StatBlock label="Missing" value={missing} color="red" />
                 <StatBlock label="Total" value={total} color="slate" />
               </div>
@@ -228,7 +199,7 @@ export default function ResultsPage() {
                 </p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full mobile-cards">
                     <thead>
                       <tr>
                         <th className="table-head w-24">ID</th>
@@ -243,25 +214,31 @@ export default function ResultsPage() {
                         <tr
                           key={m.id}
                           onClick={() => setSelectedId(m.id)}
-                          className="hover:bg-slate-50 cursor-pointer transition-colors"
+                          className="cursor-pointer"
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.background = "var(--bg-hover)")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.background = "transparent")
+                          }
                         >
                           <td className="table-cell font-mono text-xs text-ink-mute">
                             {m.requirementId}
                           </td>
-                          <td className="table-cell max-w-md">
+                          <td className="table-cell">
                             <p className="text-sm text-ink line-clamp-2">
                               {m.requirementText}
                             </p>
                           </td>
-                          <td className="table-cell">
+                          <td className="table-cell" data-label="Evidence">
                             <EvidenceChip status={m.status} />
                           </td>
-                          <td className="table-cell">
+                          <td className="table-cell" data-label="Confidence">
                             <span className="text-sm font-medium">
                               {m.confidence}%
                             </span>
                           </td>
-                          <td className="table-cell">
+                          <td className="table-cell" data-label="Review">
                             <ReviewChip status={m.status} />
                           </td>
                         </tr>
@@ -279,7 +256,8 @@ export default function ResultsPage() {
                 <div className="text-center py-12">
                   <CheckCircle2
                     size={40}
-                    className="text-emerald-500 mx-auto mb-3"
+                    className="mx-auto mb-3"
+                    style={{ color: "var(--success)" }}
                   />
                   <p className="text-ink font-medium">No missing documents</p>
                   <p className="text-sm text-ink-mute">
@@ -292,11 +270,13 @@ export default function ResultsPage() {
                     <li
                       key={m.id}
                       onClick={() => setSelectedId(m.id)}
-                      className="border border-line rounded-lg p-4 flex items-start gap-3 hover:bg-slate-50 cursor-pointer"
+                      className="border rounded-lg p-4 flex items-start gap-3 cursor-pointer"
+                      style={{ borderColor: "var(--border)" }}
                     >
                       <XCircle
                         size={18}
-                        className="text-red-500 mt-0.5 shrink-0"
+                        className="mt-0.5 shrink-0"
+                        style={{ color: "var(--danger)" }}
                       />
                       <div>
                         <p className="text-sm font-medium text-ink">
@@ -323,12 +303,13 @@ export default function ResultsPage() {
                 <ol className="space-y-4">
                   {clarifications.map((q, i) => (
                     <li key={i} className="flex gap-3">
-                      <span className="text-xs font-mono text-brand-600 font-semibold shrink-0 w-8 pt-0.5">
+                      <span
+                        className="text-xs font-mono font-semibold shrink-0 w-8 pt-0.5"
+                        style={{ color: "var(--brand)" }}
+                      >
                         Q{i + 1}
                       </span>
-                      <p className="text-sm text-ink-soft leading-relaxed">
-                        {q}
-                      </p>
+                      <p className="text-sm text-ink-soft leading-relaxed">{q}</p>
                     </li>
                   ))}
                 </ol>
@@ -368,17 +349,28 @@ export default function ResultsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedId(null)}
-              className="fixed inset-0 bg-ink/30 z-40"
+              className="fixed inset-0 z-40"
+              style={{ background: "rgba(0,0,0,0.4)" }}
             />
             <motion.aside
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 h-screen w-full max-w-md bg-white shadow-pop z-50 overflow-y-auto"
+              className="side-panel fixed right-0 top-0 h-screen w-full max-w-md z-50 overflow-y-auto"
+              style={{
+                background: "var(--bg-surface)",
+                boxShadow: "var(--shadow-pop)",
+              }}
             >
-              <div className="sticky top-0 bg-white border-b border-line px-6 py-4 flex items-center justify-between z-10">
-                <div className="flex items-center gap-3">
+              <div
+                className="sticky top-0 px-4 sm:px-6 py-4 flex items-center justify-between z-10 border-b"
+                style={{
+                  background: "var(--bg-surface)",
+                  borderColor: "var(--border)",
+                }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
                   <span className="font-mono text-sm text-ink-mute">
                     {selected.requirementId}
                   </span>
@@ -397,13 +389,14 @@ export default function ResultsPage() {
                 </div>
                 <button
                   onClick={() => setSelectedId(null)}
-                  className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-ink-mute"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-6">
                 <div>
                   <h3 className="text-base font-semibold text-ink mb-2">
                     {selected.requirementText}
@@ -413,13 +406,16 @@ export default function ResultsPage() {
                   </p>
                 </div>
 
-                <div className="border border-line rounded-lg p-4">
+                <div
+                  className="border rounded-lg p-4"
+                  style={{ borderColor: "var(--border)" }}
+                >
                   <h4 className="text-xs uppercase tracking-wider font-semibold text-ink-mute mb-3">
                     AI Assessment
                   </h4>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-xs text-ink-mute">Status</span>
-                    <span className="chip-warning">{selected.status}</span>
+                    <span className="chip chip-warning">{selected.status}</span>
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-xs text-ink-mute">Confidence</span>
@@ -437,7 +433,13 @@ export default function ResultsPage() {
                     <h4 className="text-xs uppercase tracking-wider font-semibold text-ink-mute mb-3">
                       Application Evidence
                     </h4>
-                    <blockquote className="border-l-4 border-brand-500 bg-slate-50 px-4 py-3 rounded-r-lg">
+                    <blockquote
+                      className="border-l-4 px-4 py-3 rounded-r-lg"
+                      style={{
+                        borderColor: "var(--brand)",
+                        background: "var(--bg-surface-2)",
+                      }}
+                    >
                       <p className="text-sm text-ink italic">
                         "{selected.evidenceQuote}"
                       </p>
@@ -445,7 +447,10 @@ export default function ResultsPage() {
                   </div>
                 )}
 
-                <div className="border-t border-line pt-6">
+                <div
+                  className="pt-6 border-t"
+                  style={{ borderColor: "var(--border)" }}
+                >
                   <h4 className="text-xs uppercase tracking-wider font-semibold text-ink-mute mb-3">
                     Human Review
                   </h4>
@@ -480,25 +485,19 @@ export default function ResultsPage() {
                   />
                   <div className="grid grid-cols-3 gap-2 mt-3">
                     <button
-                      onClick={() =>
-                        updateMappingStatus(selected.id, "accepted")
-                      }
+                      onClick={() => updateMappingStatus(selected.id, "accepted")}
                       className="btn-success text-xs py-2"
                     >
                       Confirm
                     </button>
                     <button
-                      onClick={() =>
-                        updateMappingStatus(selected.id, "rejected")
-                      }
+                      onClick={() => updateMappingStatus(selected.id, "rejected")}
                       className="btn-danger text-xs py-2"
                     >
                       Reject
                     </button>
                     <button
-                      onClick={() =>
-                        updateMappingStatus(selected.id, "pending")
-                      }
+                      onClick={() => updateMappingStatus(selected.id, "pending")}
                       className="btn-secondary text-xs py-2"
                     >
                       Reset
@@ -525,7 +524,7 @@ function Legend({
 }) {
   return (
     <li className="flex items-center gap-3 text-sm">
-      <span className={cn("w-2.5 h-2.5 rounded-full", color)} />
+      <span className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
       <span className="text-ink-soft">{label}</span>
       <span className="ml-auto font-semibold text-ink">{value}</span>
     </li>
@@ -542,43 +541,36 @@ function StatBlock({
   color: "emerald" | "amber" | "red" | "slate";
 }) {
   const palette = {
-    emerald: "bg-emerald-50 text-emerald-700",
-    amber: "bg-amber-50 text-amber-700",
-    red: "bg-red-50 text-red-700",
-    slate: "bg-slate-50 text-slate-700",
+    emerald: { bg: "var(--success-soft)", fg: "var(--success)" },
+    amber: { bg: "var(--warning-soft)", fg: "var(--warning)" },
+    red: { bg: "var(--danger-soft)", fg: "var(--danger)" },
+    slate: { bg: "var(--bg-hover)", fg: "var(--text-soft)" },
   }[color];
 
   return (
     <div
-      className={cn(
-        "rounded-xl p-4 flex items-center justify-between",
-        palette
-      )}
+      className="rounded-xl p-3 sm:p-4 flex items-center justify-between"
+      style={{ background: palette.bg, color: palette.fg }}
     >
-      <span className="text-sm font-medium">{label}</span>
-      <span className="text-xl font-bold">{value}</span>
+      <span className="text-xs sm:text-sm font-medium">{label}</span>
+      <span className="text-lg sm:text-xl font-bold">{value}</span>
     </div>
   );
 }
 
 function EvidenceChip({ status }: { status: Mapping["status"] }) {
-  if (status === "missing") return <span className="chip-danger">Missing</span>;
-  if (status === "weak") return <span className="chip-warning">Weak</span>;
-  if (status === "ambiguous")
-    return <span className="chip-warning">Ambiguous</span>;
-  if (status === "accepted")
-    return <span className="chip-success">Supported</span>;
-  if (status === "rejected")
-    return <span className="chip-neutral">Rejected</span>;
-  return <span className="chip-success">Supported</span>;
+  if (status === "missing") return <span className="chip chip-danger">Missing</span>;
+  if (status === "weak") return <span className="chip chip-warning">Weak</span>;
+  if (status === "ambiguous") return <span className="chip chip-warning">Ambiguous</span>;
+  if (status === "accepted") return <span className="chip chip-success">Supported</span>;
+  if (status === "rejected") return <span className="chip chip-neutral">Rejected</span>;
+  return <span className="chip chip-success">Supported</span>;
 }
 
 function ReviewChip({ status }: { status: Mapping["status"] }) {
-  if (status === "accepted")
-    return <span className="chip-success">Confirmed</span>;
-  if (status === "rejected")
-    return <span className="chip-danger">Rejected</span>;
-  return <span className="chip-warning">Pending</span>;
+  if (status === "accepted") return <span className="chip chip-success">Confirmed</span>;
+  if (status === "rejected") return <span className="chip chip-danger">Rejected</span>;
+  return <span className="chip chip-warning">Pending</span>;
 }
 
 function AuditRow({
@@ -592,7 +584,10 @@ function AuditRow({
 }) {
   return (
     <li className="flex gap-4">
-      <div className="w-2 h-2 rounded-full bg-brand-500 mt-2 shrink-0" />
+      <div
+        className="w-2 h-2 rounded-full mt-2 shrink-0"
+        style={{ background: "var(--brand)" }}
+      />
       <div>
         <div className="flex items-center gap-3 flex-wrap">
           <p className="text-sm font-medium text-ink">{title}</p>

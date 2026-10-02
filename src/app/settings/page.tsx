@@ -26,100 +26,6 @@ const SECTIONS = [
   { id: "security", label: "Security", icon: Shield },
 ];
 
-/* ── Shared button styles ─────────────────── */
-
-const primaryButtonStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "0.5rem",
-  padding: "0.625rem 1.125rem",
-  background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-  color: "#ffffff",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  lineHeight: "1.25rem",
-  borderRadius: "10px",
-  border: "1px solid #2563eb",
-  boxShadow:
-    "0 4px 14px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)",
-  cursor: "pointer",
-  textDecoration: "none",
-  whiteSpace: "nowrap",
-  transition: "transform 150ms ease, box-shadow 150ms ease",
-};
-
-const secondaryButtonStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "0.5rem",
-  padding: "0.625rem 1.125rem",
-  background: "var(--bg-surface)",
-  color: "var(--text-strong)",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  lineHeight: "1.25rem",
-  borderRadius: "10px",
-  border: "1px solid var(--border-strong)",
-  boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
-  cursor: "pointer",
-  textDecoration: "none",
-  whiteSpace: "nowrap",
-  transition: "transform 150ms ease, box-shadow 150ms ease, background 150ms ease",
-};
-
-const dangerButtonStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "0.5rem",
-  padding: "0.625rem 1.125rem",
-  background: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
-  color: "#ffffff",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  lineHeight: "1.25rem",
-  borderRadius: "10px",
-  border: "1px solid #dc2626",
-  boxShadow:
-    "0 4px 14px -3px rgba(220, 38, 38, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)",
-  cursor: "pointer",
-  textDecoration: "none",
-  whiteSpace: "nowrap",
-  transition: "transform 150ms ease, box-shadow 150ms ease",
-};
-
-const hoverLift =
-  (color: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.transform = "translateY(-1px)";
-    e.currentTarget.style.boxShadow = `0 8px 20px -3px ${color}, inset 0 1px 0 rgba(255,255,255,0.2)`;
-  };
-
-const hoverFlat = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.currentTarget.style.transform = "translateY(0)";
-  e.currentTarget.style.boxShadow =
-    "0 4px 14px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)";
-};
-
-const hoverFlatDanger = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.currentTarget.style.transform = "translateY(0)";
-  e.currentTarget.style.boxShadow =
-    "0 4px 14px -3px rgba(220, 38, 38, 0.45), inset 0 1px 0 rgba(255,255,255,0.15)";
-};
-
-const hoverSecondary = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.currentTarget.style.transform = "translateY(-1px)";
-  e.currentTarget.style.boxShadow = "0 4px 12px -2px rgba(0,0,0,0.12)";
-  e.currentTarget.style.background = "var(--bg-hover)";
-};
-
-const hoverSecondaryOff = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.currentTarget.style.transform = "translateY(0)";
-  e.currentTarget.style.boxShadow = "0 1px 2px 0 rgba(0,0,0,0.05)";
-  e.currentTarget.style.background = "var(--bg-surface)";
-};
-
 export default function SettingsPage() {
   const assessments = useStore((s) => s.assessments);
   const documents = useStore((s) => s.documents);
@@ -220,16 +126,16 @@ export default function SettingsPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Settings"]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1200px] w-full">
-          <div className="mb-8">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1200px] w-full">
+          <div className="mb-6 sm:mb-8">
             <h1 className="text-2xl font-bold text-ink">Settings</h1>
             <p className="text-sm text-ink-mute mt-1">
               Manage your profile, preferences, and data.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <nav className="lg:col-span-1 space-y-1">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+            <nav className="settings-nav lg:col-span-1">
               {SECTIONS.map((s) => {
                 const Icon = s.icon;
                 const active = section === s.id;
@@ -240,13 +146,13 @@ export default function SettingsPage() {
                     className={active ? "nav-item-active" : "nav-item"}
                   >
                     <Icon size={16} />
-                    {s.label}
+                    <span className="whitespace-nowrap">{s.label}</span>
                   </button>
                 );
               })}
             </nav>
 
-            <div className="lg:col-span-3 space-y-6">
+            <div className="lg:col-span-3 space-y-4 sm:space-y-6">
               {section === "profile" && (
                 <div className="card space-y-5">
                   <div>
@@ -260,7 +166,7 @@ export default function SettingsPage() {
 
                   <div className="flex items-center gap-4">
                     <div
-                      className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white"
+                      className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white shrink-0"
                       style={{ background: "var(--brand)" }}
                     >
                       {initials}
@@ -308,12 +214,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="flex justify-end pt-2">
-                    <button
-                      onClick={saveProfile}
-                      style={primaryButtonStyle}
-                      onMouseEnter={hoverLift("rgba(37, 99, 235, 0.55)")}
-                      onMouseLeave={hoverFlat}
-                    >
+                    <button onClick={saveProfile} className="btn-primary">
                       <Save size={16} /> Save Changes
                     </button>
                   </div>
@@ -330,14 +231,14 @@ export default function SettingsPage() {
                     <label className="block text-sm font-medium text-ink mb-3">
                       Theme
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {(["light", "dark", "system"] as const).map((t) => {
                         const active = preferences.theme === t;
                         return (
                           <button
                             key={t}
                             onClick={() => setTheme(t)}
-                            className="border rounded-lg p-4 text-left transition-all"
+                            className="border rounded-lg p-4 text-left"
                             style={{
                               borderColor: active
                                 ? "var(--brand)"
@@ -367,14 +268,14 @@ export default function SettingsPage() {
                     <label className="block text-sm font-medium text-ink mb-3">
                       Density
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {(["comfortable", "compact"] as const).map((d) => {
                         const active = preferences.density === d;
                         return (
                           <button
                             key={d}
                             onClick={() => setDensity(d)}
-                            className="border rounded-lg p-4 text-left transition-all"
+                            className="border rounded-lg p-4 text-left"
                             style={{
                               borderColor: active
                                 ? "var(--brand)"
@@ -428,7 +329,7 @@ export default function SettingsPage() {
               )}
 
               {section === "data" && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="card">
                     <h2 className="text-base font-semibold text-ink mb-4">
                       Your Data
@@ -470,9 +371,7 @@ export default function SettingsPage() {
                     </p>
                     <button
                       onClick={exportData}
-                      style={secondaryButtonStyle}
-                      onMouseEnter={hoverSecondary}
-                      onMouseLeave={hoverSecondaryOff}
+                      className="btn-secondary w-full sm:w-auto"
                     >
                       <Download size={16} /> Export Data
                     </button>
@@ -494,9 +393,7 @@ export default function SettingsPage() {
                     </p>
                     <button
                       onClick={clearAll}
-                      style={dangerButtonStyle}
-                      onMouseEnter={hoverLift("rgba(220, 38, 38, 0.55)")}
-                      onMouseLeave={hoverFlatDanger}
+                      className="btn-danger w-full sm:w-auto"
                     >
                       <Trash2 size={16} /> Delete All Data
                     </button>
@@ -520,7 +417,7 @@ export default function SettingsPage() {
                       Your Groq API key is stored server-side as an environment
                       variable. It is never exposed to the browser.
                     </p>
-                    <p className="text-xs text-ink-mute font-mono">
+                    <p className="text-xs text-ink-mute font-mono break-all">
                       GROQ_API_KEY = ••••••••••••••••••••
                     </p>
                   </div>
@@ -542,7 +439,7 @@ export default function SettingsPage() {
 
               {saved && (
                 <div
-                  className="fixed bottom-6 right-6 text-sm rounded-lg px-4 py-2 flex items-center gap-2 z-50"
+                  className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 text-sm rounded-lg px-4 py-2 flex items-center gap-2 z-50"
                   style={{
                     background: "var(--brand)",
                     color: "#ffffff",
@@ -574,14 +471,13 @@ function Toggle({
 }) {
   return (
     <div
-      className="flex items-start justify-between py-3 border-b last:border-0"
+      className="flex items-start justify-between py-3 border-b last:border-0 gap-4"
       style={{ borderColor: "var(--border)" }}
     >
       <div>
         <p className="text-sm font-medium text-ink">{label}</p>
         <p className="text-xs text-ink-mute mt-0.5">{description}</p>
       </div>
-
       <button
         type="button"
         role="switch"

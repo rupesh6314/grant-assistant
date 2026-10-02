@@ -44,7 +44,6 @@ const hoverOff = (e: React.MouseEvent<HTMLButtonElement>) => {
 
 export default function Dashboard() {
   const router = useRouter();
-
   const assessments = useStore((s) => s.assessments);
   const setCurrent = useStore((s) => s.setCurrent);
   const userName = useStore((s) => s.preferences.name);
@@ -86,8 +85,8 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Dashboard"]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
-          <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
             <div>
               <h1 className="text-2xl font-bold text-ink">
                 Welcome back, {firstName}
@@ -108,16 +107,16 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard label="Total Assessments" value={total} icon={FileText} color="blue" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <StatCard label="Total" value={total} icon={FileText} color="blue" />
             <StatCard label="Completed" value={completed} icon={CheckCircle2} color="green" />
             <StatCard label="In Review" value={inReview} icon={Clock} color="amber" />
             <StatCard label="Drafts" value={drafts} icon={FileEdit} color="violet" />
           </div>
 
-          <div className="card mb-8 !p-0 overflow-hidden">
+          <div className="card mb-6 sm:mb-8 !p-0 overflow-hidden">
             <div
-              className="px-6 py-4 border-b"
+              className="px-4 sm:px-6 py-4 border-b"
               style={{ borderColor: "var(--border)" }}
             >
               <h2 className="text-base font-semibold text-ink">
@@ -125,7 +124,7 @@ export default function Dashboard() {
               </h2>
             </div>
             {assessments.length === 0 ? (
-              <div className="text-center py-16">
+              <div className="text-center py-12 sm:py-16 px-4">
                 <FileText
                   size={40}
                   className="mx-auto mb-3"
@@ -146,7 +145,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full mobile-cards">
                   <thead>
                     <tr>
                       <th className="table-head">Title</th>
@@ -172,10 +171,10 @@ export default function Dashboard() {
                         }
                       >
                         <td className="table-cell font-medium">{a.title}</td>
-                        <td className="table-cell">
+                        <td className="table-cell" data-label="Status">
                           <StatusChip status={a.status} />
                         </td>
-                        <td className="table-cell">
+                        <td className="table-cell" data-label="Completeness">
                           <div className="flex items-center gap-3">
                             <div
                               className="w-24 h-1.5 rounded-full overflow-hidden"
@@ -200,7 +199,7 @@ export default function Dashboard() {
                             </span>
                           </div>
                         </td>
-                        <td className="table-cell text-ink-mute">
+                        <td className="table-cell text-ink-mute" data-label="Updated">
                           {formatDate(a.updatedAt)}
                         </td>
                       </tr>
@@ -211,14 +210,14 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <div className="card">
               <h2 className="text-base font-semibold text-ink mb-4">
                 Completion Overview
               </h2>
-              <div className="flex items-center gap-8 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
                 <Donut percent={avgCompleteness} />
-                <ul className="space-y-3 text-sm flex-1 min-w-[180px]">
+                <ul className="space-y-3 text-sm w-full sm:flex-1">
                   <Legend color="#10b981" label="Supported" value={supported} />
                   <Legend color="#f59e0b" label="Needs review" value={needsReview} />
                   <Legend color="#ef4444" label="Missing" value={missing} />
@@ -241,7 +240,7 @@ export default function Dashboard() {
                       style={{ borderColor: "var(--border)" }}
                     >
                       <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center"
+                        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                         style={{
                           background: "var(--bg-hover)",
                           color: "var(--text-muted)",

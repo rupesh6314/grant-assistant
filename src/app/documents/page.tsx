@@ -122,8 +122,8 @@ export default function DocumentsPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Documents"]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
-          <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
             <div>
               <h1 className="text-2xl font-bold text-ink">Documents</h1>
               <p className="text-sm text-ink-mute mt-1">
@@ -149,8 +149,8 @@ export default function DocumentsPage() {
             />
           </div>
 
-          <div className="card mb-4 !p-3 flex items-center gap-3 flex-wrap">
-            <div className="relative flex-1 min-w-[200px]">
+          <div className="card mb-4 !p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="relative flex-1 min-w-0">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2"
@@ -164,46 +164,48 @@ export default function DocumentsPage() {
               />
             </div>
 
-            <div className="relative">
-              <Filter
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "var(--text-muted)" }}
-              />
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as any)}
-                className="input pl-9 pr-8 appearance-none cursor-pointer"
-              >
-                <option value="all">All types</option>
-                <option value="guideline">Guideline</option>
-                <option value="application">Application</option>
-                <option value="supporting">Supporting</option>
-              </select>
-            </div>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Filter
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  style={{ color: "var(--text-muted)" }}
+                />
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value as any)}
+                  className="input pl-9 pr-8 appearance-none cursor-pointer"
+                >
+                  <option value="all">All types</option>
+                  <option value="guideline">Guideline</option>
+                  <option value="application">Application</option>
+                  <option value="supporting">Supporting</option>
+                </select>
+              </div>
 
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="input pr-8 appearance-none cursor-pointer"
-              >
-                <option value="recent">Most recent</option>
-                <option value="name">Name A–Z</option>
-                <option value="size">Largest first</option>
-              </select>
-              <ChevronDown
-                size={14}
-                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "var(--text-muted)" }}
-              />
+              <div className="relative flex-1">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="input pr-8 appearance-none cursor-pointer"
+                >
+                  <option value="recent">Most recent</option>
+                  <option value="name">Name A–Z</option>
+                  <option value="size">Largest first</option>
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  style={{ color: "var(--text-muted)" }}
+                />
+              </div>
             </div>
           </div>
 
           {documents.length === 0 ? (
             <div
               onClick={() => inputRef.current?.click()}
-              className="card !p-12 text-center border-dashed border-2 cursor-pointer"
+              className="card !p-8 sm:!p-12 text-center border-dashed border-2 cursor-pointer"
               style={{ borderColor: "var(--border)" }}
             >
               <FileCheck2
@@ -230,7 +232,7 @@ export default function DocumentsPage() {
               </div>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="card !p-12 text-center">
+            <div className="card !p-8 sm:!p-12 text-center">
               <Search
                 size={40}
                 className="mx-auto mb-3"
@@ -250,7 +252,7 @@ export default function DocumentsPage() {
           ) : (
             <div className="card !p-0 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full mobile-cards">
                   <thead>
                     <tr>
                       <th className="table-head">Name</th>
@@ -262,15 +264,7 @@ export default function DocumentsPage() {
                   </thead>
                   <tbody>
                     {filtered.map((doc) => (
-                      <tr
-                        key={doc.id}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "var(--bg-hover)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "transparent")
-                        }
-                      >
+                      <tr key={doc.id}>
                         <td className="table-cell">
                           <div className="flex items-center gap-3">
                             <div
@@ -292,29 +286,23 @@ export default function DocumentsPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="table-cell">
+                        <td className="table-cell" data-label="Type">
                           <span className="chip chip-info capitalize">
                             {doc.type}
                           </span>
                         </td>
-                        <td className="table-cell text-xs text-ink-mute">
+                        <td className="table-cell text-xs text-ink-mute" data-label="Size">
                           {(doc.size / 1024).toFixed(1)} KB
                         </td>
-                        <td className="table-cell text-xs text-ink-mute">
+                        <td className="table-cell text-xs text-ink-mute" data-label="Uploaded">
                           {formatDate(doc.uploadedAt)}
                         </td>
-                        <td className="table-cell text-right">
+                        <td className="table-cell text-right" data-label="Actions">
                           <div className="flex justify-end gap-1">
                             <button
                               onClick={() => setPreview(doc)}
                               className="w-8 h-8 rounded-lg flex items-center justify-center"
                               style={{ color: "var(--text-muted)" }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = "var(--bg-hover)")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.background = "transparent")
-                              }
                               title="Preview"
                             >
                               <Eye size={14} />
@@ -323,12 +311,6 @@ export default function DocumentsPage() {
                               onClick={() => setEditing(doc)}
                               className="w-8 h-8 rounded-lg flex items-center justify-center"
                               style={{ color: "var(--text-muted)" }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = "var(--bg-hover)")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.background = "transparent")
-                              }
                               title="Edit"
                             >
                               <Pencil size={14} />
@@ -337,12 +319,6 @@ export default function DocumentsPage() {
                               onClick={() => download(doc)}
                               className="w-8 h-8 rounded-lg flex items-center justify-center"
                               style={{ color: "var(--text-muted)" }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = "var(--bg-hover)")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.background = "transparent")
-                              }
                               title="Download"
                             >
                               <Download size={14} />
@@ -354,14 +330,6 @@ export default function DocumentsPage() {
                               }}
                               className="w-8 h-8 rounded-lg flex items-center justify-center"
                               style={{ color: "var(--text-muted)" }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = "var(--danger-soft)";
-                                e.currentTarget.style.color = "var(--danger)";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = "transparent";
-                                e.currentTarget.style.color = "var(--text-muted)";
-                              }}
                               title="Delete"
                             >
                               <Trash2 size={14} />
@@ -386,18 +354,18 @@ export default function DocumentsPage() {
             style={{ background: "rgba(0,0,0,0.4)" }}
           />
           <div
-            className="fixed inset-x-4 top-20 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[700px] rounded-xl z-50 flex flex-col overflow-hidden"
+            className="modal-mobile-full fixed inset-x-4 top-20 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[700px] rounded-xl z-50 flex flex-col overflow-hidden"
             style={{
               background: "var(--bg-surface)",
               boxShadow: "var(--shadow-pop)",
             }}
           >
             <div
-              className="px-6 py-4 flex items-center justify-between border-b"
+              className="px-4 sm:px-6 py-4 flex items-center justify-between border-b"
               style={{ borderColor: "var(--border)" }}
             >
-              <div>
-                <h3 className="font-semibold text-ink">{preview.name}</h3>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-ink truncate">{preview.name}</h3>
                 <p className="text-xs text-ink-mute">
                   {(preview.size / 1024).toFixed(1)} KB ·{" "}
                   {formatDate(preview.uploadedAt)}
@@ -405,14 +373,14 @@ export default function DocumentsPage() {
               </div>
               <button
                 onClick={() => setPreview(null)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                 style={{ color: "var(--text-muted)" }}
               >
                 <X size={18} />
               </button>
             </div>
             <pre
-              className="flex-1 overflow-auto p-6 text-sm whitespace-pre-wrap font-mono"
+              className="flex-1 overflow-auto p-4 sm:p-6 text-sm whitespace-pre-wrap font-mono"
               style={{ color: "var(--text-soft)" }}
             >
               {preview.content}
@@ -429,14 +397,14 @@ export default function DocumentsPage() {
             style={{ background: "rgba(0,0,0,0.4)" }}
           />
           <div
-            className="fixed inset-x-4 top-24 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[500px] rounded-xl z-50 overflow-hidden"
+            className="modal-mobile-full fixed inset-x-4 top-24 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[500px] rounded-xl z-50 overflow-hidden"
             style={{
               background: "var(--bg-surface)",
               boxShadow: "var(--shadow-pop)",
             }}
           >
             <div
-              className="px-6 py-4 flex items-center justify-between border-b"
+              className="px-4 sm:px-6 py-4 flex items-center justify-between border-b"
               style={{ borderColor: "var(--border)" }}
             >
               <h3 className="font-semibold text-ink">Edit Document</h3>
@@ -448,7 +416,7 @@ export default function DocumentsPage() {
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-ink mb-1.5">
                   Name
@@ -501,7 +469,7 @@ export default function DocumentsPage() {
               </div>
             </div>
             <div
-              className="px-6 py-4 flex justify-end gap-2 border-t"
+              className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-end gap-2 border-t"
               style={{ borderColor: "var(--border)" }}
             >
               <button onClick={() => setEditing(null)} className="btn-secondary">

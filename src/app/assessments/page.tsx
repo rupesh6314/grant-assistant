@@ -51,8 +51,8 @@ export default function AssessmentsPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Assessments"]} />
-        <main className="flex-1 p-6 lg:p-8 max-w-[1400px] w-full">
-          <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
             <div>
               <h1 className="text-2xl font-bold text-ink">All Assessments</h1>
               <p className="text-sm text-ink-mute mt-1">
@@ -71,7 +71,7 @@ export default function AssessmentsPage() {
           </div>
 
           {assessments.length === 0 ? (
-            <div className="card !p-12 text-center">
+            <div className="card !p-8 sm:!p-12 text-center">
               <FileText
                 size={40}
                 className="mx-auto mb-3"
@@ -88,7 +88,7 @@ export default function AssessmentsPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {assessments.map((a) => (
                 <div
                   key={a.id}

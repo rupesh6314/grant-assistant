@@ -46,31 +46,30 @@ export default function Topbar({
 
   return (
     <header className="app-topbar h-16 flex items-center justify-between px-6 sticky top-0 z-30 border-b divider">
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm min-w-0 flex-1">
         {breadcrumb.map((b, i) => (
-          <span key={i} className="flex items-center gap-2">
+          <span key={i} className="flex items-center gap-2 min-w-0">
             <span
-              className={i === breadcrumb.length - 1 ? "text-ink font-medium" : "text-ink-mute"}
+              className={
+                (i === breadcrumb.length - 1 ? "text-ink font-medium" : "text-ink-mute") +
+                " truncate"
+              }
             >
               {b}
             </span>
             {i < breadcrumb.length - 1 && (
-              <span className="text-ink-mute">/</span>
+              <span className="text-ink-mute shrink-0">/</span>
             )}
           </span>
         ))}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <div ref={notifRef} className="relative">
           <button
             onClick={() => setNotifOpen((v) => !v)}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors text-ink-soft"
             style={{ color: "var(--text-soft)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "var(--bg-hover)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <Bell size={18} />
             <span
@@ -80,7 +79,7 @@ export default function Topbar({
           </button>
           {notifOpen && (
             <div
-              className="absolute right-0 mt-2 w-80 rounded-xl p-3 z-50 border"
+              className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl p-3 z-50 border"
               style={{
                 background: "var(--bg-surface)",
                 borderColor: "var(--border)",
@@ -91,29 +90,13 @@ export default function Topbar({
                 Notifications
               </div>
               <ul className="space-y-1 mt-1">
-                <li
-                  className="px-2 py-2 rounded-lg text-sm cursor-pointer"
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "var(--bg-hover)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
-                >
+                <li className="px-2 py-2 rounded-lg text-sm">
                   <p className="text-ink font-medium">Assessment ready</p>
                   <p className="text-xs text-ink-mute">
                     Community Digital Innovation Grant
                   </p>
                 </li>
-                <li
-                  className="px-2 py-2 rounded-lg text-sm cursor-pointer"
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "var(--bg-hover)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
-                >
+                <li className="px-2 py-2 rounded-lg text-sm">
                   <p className="text-ink font-medium">3 missing documents</p>
                   <p className="text-xs text-ink-mute">
                     Rural Education Initiative
@@ -127,20 +110,16 @@ export default function Topbar({
         <div ref={menuRef} className="relative">
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full transition-colors"
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "var(--bg-hover)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            className="flex items-center gap-2 pl-1 pr-2 py-1.5 rounded-full transition-colors"
           >
             <div
-              className="w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center"
+              className="w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0"
               style={{ background: "var(--brand)" }}
             >
               {initials}
             </div>
-            <span className="text-sm font-medium text-ink">{user}</span>
-            <ChevronDown size={14} className="text-ink-mute" />
+            <span className="text-sm font-medium text-ink user-name">{user}</span>
+            <ChevronDown size={14} className="chevron" style={{ color: "var(--text-muted)" }} />
           </button>
 
           {menuOpen && (
@@ -158,12 +137,6 @@ export default function Topbar({
                   router.push("/settings?section=profile");
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-ink"
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "var(--bg-hover)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
               >
                 <User size={16} /> Profile
               </button>
@@ -174,12 +147,6 @@ export default function Topbar({
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm"
                 style={{ color: "var(--danger)" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "var(--danger-soft)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
               >
                 <LogOut size={16} /> Sign out
               </button>

@@ -96,22 +96,27 @@ export default function NewAssessment() {
   };
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex min-h-screen app-shell">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar breadcrumb={["Assessments", "New Assessment"]} />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-[1100px] w-full">
-          <button onClick={() => router.push("/")} className="btn-ghost mb-4 -ml-2">
+        <main className="app-content flex-1 p-4 sm:p-6 lg:p-8 max-w-[1100px] w-full">
+          <button
+            onClick={() => router.push("/")}
+            className="btn-ghost mb-4 -ml-2"
+          >
             <ArrowLeft size={16} /> Back
           </button>
 
-          <h1 className="text-2xl font-bold text-ink mb-2">Create New Assessment</h1>
-          <p className="text-sm text-ink-mute mb-8">
+          <h1 className="text-2xl font-bold text-ink mb-2">
+            Create New Assessment
+          </h1>
+          <p className="text-sm text-ink-mute mb-6 sm:mb-8">
             Upload the grant guideline, application, and supporting documents.
           </p>
 
-          <div className="card p-6 mb-6">
+          <div className="card mb-4 sm:mb-6 !p-4 sm:!p-6">
             <Wizard step={step} onStepClick={(n) => setStep(n)} />
           </div>
 
@@ -124,10 +129,10 @@ export default function NewAssessment() {
               transition={{ duration: 0.2 }}
             >
               {step === 1 && (
-                <div className="card p-6 space-y-5">
+                <div className="card space-y-5">
                   <div>
                     <label className="block text-sm font-medium text-ink mb-2">
-                      Assessment Title <span className="text-red-500">*</span>
+                      Assessment Title <span style={{ color: "var(--danger)" }}>*</span>
                     </label>
                     <input
                       value={title}
@@ -139,7 +144,7 @@ export default function NewAssessment() {
 
                   <div>
                     <h2 className="text-base font-semibold text-ink mb-3">
-                      Grant Guideline <span className="text-red-500">*</span>
+                      Grant Guideline <span style={{ color: "var(--danger)" }}>*</span>
                     </h2>
                     <UploadDropzone
                       label="Drop your guideline document here"
@@ -165,14 +170,15 @@ export default function NewAssessment() {
                       }}
                     />
                     <details className="mt-3 text-sm">
-                      <summary className="cursor-pointer text-ink-mute hover:text-ink">
+                      <summary className="cursor-pointer text-ink-mute">
                         Or paste text manually
                       </summary>
                       <textarea
                         value={guidelineText}
                         onChange={(e) => {
                           setGuidelineText(e.target.value);
-                          if (!guidelineName) setGuidelineName("pasted-guideline.txt");
+                          if (!guidelineName)
+                            setGuidelineName("pasted-guideline.txt");
                         }}
                         placeholder="Paste guideline text here…"
                         className="input mt-3 h-40 resize-none"
@@ -183,9 +189,9 @@ export default function NewAssessment() {
               )}
 
               {step === 2 && (
-                <div className="card p-6">
+                <div className="card">
                   <h2 className="text-base font-semibold text-ink mb-3">
-                    Draft Application <span className="text-red-500">*</span>
+                    Draft Application <span style={{ color: "var(--danger)" }}>*</span>
                   </h2>
                   <UploadDropzone
                     label="Drop application document here"
@@ -211,14 +217,15 @@ export default function NewAssessment() {
                     }}
                   />
                   <details className="mt-3 text-sm">
-                    <summary className="cursor-pointer text-ink-mute hover:text-ink">
+                    <summary className="cursor-pointer text-ink-mute">
                       Or paste text manually
                     </summary>
                     <textarea
                       value={applicationText}
                       onChange={(e) => {
                         setApplicationText(e.target.value);
-                        if (!applicationName) setApplicationName("pasted-application.txt");
+                        if (!applicationName)
+                          setApplicationName("pasted-application.txt");
                       }}
                       placeholder="Paste application text here…"
                       className="input mt-3 h-40 resize-none"
@@ -228,7 +235,7 @@ export default function NewAssessment() {
               )}
 
               {step === 3 && (
-                <div className="card p-6">
+                <div className="card">
                   <h2 className="text-base font-semibold text-ink mb-3">
                     Supporting Documents{" "}
                     <span className="text-ink-mute font-normal">(optional)</span>
@@ -259,8 +266,10 @@ export default function NewAssessment() {
               )}
 
               {step === 4 && (
-                <div className="card p-6">
-                  <h2 className="text-base font-semibold text-ink mb-4">Review & Run</h2>
+                <div className="card">
+                  <h2 className="text-base font-semibold text-ink mb-4">
+                    Review & Run
+                  </h2>
                   <ul className="space-y-3 mb-6">
                     <SummaryRow label="Title" value={title || "—"} />
                     <SummaryRow label="Guideline" value={guidelineName || "—"} />
@@ -269,16 +278,30 @@ export default function NewAssessment() {
                   </ul>
 
                   {analyzeError && (
-                    <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+                    <div
+                      className="mb-4 p-3 rounded-lg text-sm"
+                      style={{
+                        background: "var(--danger-soft)",
+                        color: "var(--danger)",
+                      }}
+                    >
                       {analyzeError}
                     </div>
                   )}
 
-                  <button onClick={runAnalysis} disabled={analyzing} className="btn-primary w-full py-3">
+                  <button
+                    onClick={runAnalysis}
+                    disabled={analyzing}
+                    className="btn-primary w-full py-3"
+                  >
                     {analyzing ? (
-                      <><Loader2 size={16} className="animate-spin" /> Analyzing…</>
+                      <>
+                        <Loader2 size={16} className="animate-spin" /> Analyzing…
+                      </>
                     ) : (
-                      <>Run Assessment <ArrowRight size={16} /></>
+                      <>
+                        Run Assessment <ArrowRight size={16} />
+                      </>
                     )}
                   </button>
                 </div>
@@ -287,11 +310,19 @@ export default function NewAssessment() {
           </AnimatePresence>
 
           {step < 4 && (
-            <div className="flex justify-between mt-6">
-              <button onClick={() => setStep(step - 1)} disabled={step === 1} className="btn-secondary">
+            <div className="flex justify-between gap-3 mt-6">
+              <button
+                onClick={() => setStep(step - 1)}
+                disabled={step === 1}
+                className="btn-secondary flex-1 sm:flex-initial"
+              >
                 <ArrowLeft size={16} /> Back
               </button>
-              <button onClick={() => setStep(step + 1)} disabled={!canNext} className="btn-primary">
+              <button
+                onClick={() => setStep(step + 1)}
+                disabled={!canNext}
+                className="btn-primary flex-1 sm:flex-initial"
+              >
                 Next <ArrowRight size={16} />
               </button>
             </div>
@@ -304,10 +335,13 @@ export default function NewAssessment() {
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <li className="flex items-center justify-between text-sm py-2 border-b border-line last:border-0">
+    <li
+      className="flex items-center justify-between text-sm py-2 border-b last:border-0"
+      style={{ borderColor: "var(--border)" }}
+    >
       <span className="text-ink-mute">{label}</span>
-      <span className="text-ink font-medium flex items-center gap-2">
-        <Check size={14} className="text-emerald-500" />
+      <span className="text-ink font-medium flex items-center gap-2 truncate">
+        <Check size={14} style={{ color: "var(--success)" }} />
         {value}
       </span>
     </li>
